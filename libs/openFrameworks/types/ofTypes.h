@@ -65,7 +65,7 @@ class ofSerialDeviceInfo{
 //----------------------------------------------------------
 // ofMutex
 //----------------------------------------------------------
-
+#define POCO_NO_UNWINDOWS
 #include "Poco/Mutex.h"
 typedef Poco::FastMutex ofMutex;
 typedef Poco::FastMutex::ScopedLock ofScopedLock;
