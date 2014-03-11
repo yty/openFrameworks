@@ -90,7 +90,7 @@ class ofSerialDeviceInfo{
 //----------------------------------------------------------
 // ofMutex
 //----------------------------------------------------------
-
+#define POCO_NO_UNWINDOWS
 #include "Poco/Mutex.h"
 
 /// \brief A typedef for a cross-platform mutex.
