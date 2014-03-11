@@ -6,6 +6,12 @@
 #include "ofTrueTypeFont.h"
 #include "ofBitmapFont.h"
 
+//#define SUPPORT_FONTSTASH
+#ifdef SUPPORT_FONTSTASH
+#include "ofxFontStash.h"
+#endif
+
+
 class ofxBaseGui{
 public:
 	ofxBaseGui();
@@ -58,7 +64,7 @@ public:
 	static void setDefaultHeight(int height);
 
 	virtual ofAbstractParameter & getParameter() = 0;
-	static void loadFont(string filename, int fontsize, bool _bAntiAliased=true, bool _bFullCharacterSet=false, int dpi=0);
+	static void loadFont(string filename, int fontsize = 12, bool _bAntiAliased=true, bool _bFullCharacterSet=false, int dpi=0);
 	static void setUseTTF(bool bUseTTF);
     
     void registerMouseEvents();
@@ -82,8 +88,11 @@ protected:
 	static ofTrueTypeFont font;
 	static bool fontLoaded;
 	static bool useTTF;
-	static ofBitmapFont bitmapFont;
-	shared_ptr<ofBaseFileSerializer> serializer;
+#ifdef SUPPORT_FONTSTASH
+	static ofxFontStash unicodeFont;
+#endif
+
+	ofPtr<ofBaseFileSerializer> serializer;
 
 	static ofColor headerBackgroundColor;
 	static ofColor backgroundColor;
@@ -100,6 +109,7 @@ protected:
 	static int textPadding;
 	static int defaultWidth;
 	static int defaultHeight;
+	static int fontSize;
 
 	static string saveStencilToHex(ofImage& img);
 	static void loadStencilFromHex(ofImage& img, unsigned char* data) ;
