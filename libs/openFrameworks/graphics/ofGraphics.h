@@ -1026,6 +1026,7 @@ void ofViewport(ofRectangle viewport);
 /// \param width The width of the viewport, defaults to ofGetWidth()
 /// \param height The height of the viewport, defaults to ofGetHeight()
 void ofViewport(float x = 0, float y = 0, float width = -1, float height = -1, bool vflip=ofIsVFlipped());
+void ofQuadBezier(float x0, float y0, float x1, float y1, float x2, float y2);
 
 /// \brief Get the position and size of the current viewport
 /// \returns A rectangle describing the viewport
