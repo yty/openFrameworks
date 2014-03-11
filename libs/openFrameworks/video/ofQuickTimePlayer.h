@@ -70,7 +70,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		ofPixels		 	pixels;
 		int					width, height;
 		bool				bLoaded;
-
+		ofPixelFormat       pixelFormat;
 		//these are public because the ofQuickTimePlayer implementation has some callback functions that need access
 		//todo - fix this
 

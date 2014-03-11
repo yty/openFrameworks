@@ -92,7 +92,11 @@ OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
 	ofQuickTimePlayer * ofvp = (ofQuickTimePlayer *)refCon;
 
 	#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height);
+	if (pixelFormat == OF_PIXELS_RGBA) {
+		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height, 4);
+	} else {
+		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height, 3);
+	}
 	#endif
 
 	ofvp->bHavePixelsChanged = true;
@@ -108,6 +112,7 @@ ofQuickTimePlayer::ofQuickTimePlayer (){
     	moviePtr	 				= NULL;
     	allocated 					= false;
         offscreenGWorld				= NULL;
+		pixelFormat                 = OF_PIXELS_RGB;
 	//--------------------------------------------------------------
 	#endif
 	//--------------------------------------------------------------
@@ -242,12 +247,21 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 	movieRect.right 		= width;
 	offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
 	allocated				= true;
-	pixels.allocate(width,height,OF_IMAGE_COLOR);
+	if (pixelFormat == OF_PIXELS_RGBA) {
+		pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+	} else {
+		pixels.allocate(width, height, OF_IMAGE_COLOR);
+	}
 
 	#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
 		QTNewGWorldFromPtr (&(offscreenGWorld), k32ARGBPixelFormat, &(movieRect), NULL, NULL, 0, (offscreenGWorldPixels), 4 * width);		
 	#else
-		QTNewGWorldFromPtr (&(offscreenGWorld), k24RGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
+		if (pixelFormat == OF_PIXELS_RGBA) {
+			QTNewGWorldFromPtr (&(offscreenGWorld), k32RGBAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+		}
+		else {
+			QTNewGWorldFromPtr (&(offscreenGWorld), k24RGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
+		}
 	#endif
 
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
@@ -366,7 +380,11 @@ bool ofQuickTimePlayer::load(string name){
 		MoviesTask(moviePtr,0);
 
 		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
+		if (pixelFormat == OF_PIXELS_RGBA) {
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, 4);
+		} else {
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, 3);
+		}
 		#endif
 
 		bStarted 				= false;
@@ -410,7 +428,11 @@ void ofQuickTimePlayer::start(){
 		// get some pixels in there right away:
 		MoviesTask(moviePtr,0);
 		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
+		if (pixelFormat == OF_PIXELS_RGBA) {
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, 4);
+		} else {
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, 3);
+		}
 		#endif
 		bHavePixelsChanged = true;
 
@@ -694,19 +716,22 @@ int ofQuickTimePlayer::getCurrentFrame() const{
 }
 
 //---------------------------------------------------------------------------
-bool ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
+bool ofQuickTimePlayer::setPixelFormat(ofPixelFormat pxFormat){
 	//note as we only support RGB we are just confirming that this pixel format is supported
-	if( pixelFormat == OF_PIXELS_RGB ){
-		return true;
-	}
-	ofLogWarning("ofQuickTimePlayer") << "setPixelFormat(): requested pixel format " << pixelFormat << " not supported, expecting OF_PIXELS_RGB";
-	return false;
+	//if( pixelFormat == OF_PIXELS_RGB ){
+	//	return true;
+	//}
+	//ofLogWarning("ofQuickTimePlayer") << "setPixelFormat(): requested pixel format " << pixelFormat << " not supported, expecting OF_PIXELS_RGB";
+	//return false;
+	pixelFormat = pxFormat;
+	return TRUE;
 }
 
 //---------------------------------------------------------------------------
 ofPixelFormat ofQuickTimePlayer::getPixelFormat() const{
 	//note if you support more than one pixel format you will need to return a ofPixelFormat variable. 
-	return OF_PIXELS_RGB;
+	//return OF_PIXELS_RGB;
+	return pixelFormat;
 }
 
 
