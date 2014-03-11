@@ -26,7 +26,7 @@ class ofGstAppSink;
 typedef struct _GstElement GstElement;
 typedef struct _GstBuffer GstBuffer;
 typedef struct _GstMessage GstMessage;
-
+typedef uint64_t u_int64_t; 
 //-------------------------------------------------
 //----------------------------------------- ofGstUtils
 //-------------------------------------------------
