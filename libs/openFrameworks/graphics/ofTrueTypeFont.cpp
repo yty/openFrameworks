@@ -433,7 +433,7 @@ static bool loadFontFace(string fontname, int _fontSize, FT_Face & face, string 
 		ofLogVerbose("ofTrueTypeFont") << "loadFontFace(): \"" << fontname << "\" not a file in data loading system font from \"" << filename << "\"";
 	}
 	FT_Error err;
-	err = FT_New_Face( library, filename.c_str(), fontID, &face );
+	err = FT_New_Face( library, ofUtf8ToLocale(filename).c_str(), fontID, &face );
 	if (err) {
 		// simple error table in lieu of full table (see fterrors.h)
 		string errorString = "unknown freetype";
