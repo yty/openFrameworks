@@ -97,6 +97,7 @@ class ofMessage : public ofEventArgs{
 			message = msg;
 		}
 		string message;
+		string arg;
 };
 		
 
