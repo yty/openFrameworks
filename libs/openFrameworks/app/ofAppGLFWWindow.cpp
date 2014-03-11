@@ -73,11 +73,14 @@ ofAppGLFWWindow::ofAppGLFWWindow():ofAppBaseWindow(){
     //default to 4 times antialiasing. 
     setNumSamples(4);
 	iconSet = false;
-
+	bDecoration = true;
 	glfwSetErrorCallback(error_cb);
 
 }
 
+void ofAppGLFWWindow::setWindowDecoration(bool b){
+	bDecoration  = b;
+}
 
 //------------------------------------------------------------
 void ofAppGLFWWindow::setNumSamples(int _samples){
@@ -139,7 +142,7 @@ void ofAppGLFWWindow::setupOpenGL(int w, int h, int screenMode){
 //	ofLogNotice("ofAppGLFWWindow") << "WINDOW MODE IS " << screenMode;
 
 	int requestedMode = screenMode;
-
+	glfwWindowHint(GLFW_DECORATED, bDecoration); 
 	glfwWindowHint(GLFW_RED_BITS, rBits);
 	glfwWindowHint(GLFW_GREEN_BITS, gBits);
 	glfwWindowHint(GLFW_BLUE_BITS, bBits);
