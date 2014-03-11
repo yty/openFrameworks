@@ -113,7 +113,7 @@ public:
 	bool		isWindowResizeable();
 	void		iconify(bool bIconify);
     void        setMultiDisplayFullscreen(bool bMultiFullscreen); //note this just enables the mode, you have to toggle fullscreen to activate it.
-
+	void		setWindowDecoration(bool b);
 
     // this functions are only meant to be called from inside OF don't call them from your code
     using ofAppBaseWindow::setup;
@@ -241,6 +241,7 @@ private:
 	ofOrientation orientation;
 
 	bool iconSet;
+	bool bDecoration;
 
     #ifdef TARGET_WIN32
     LONG lExStyle, lStyle;

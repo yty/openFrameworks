@@ -45,6 +45,7 @@ ofAppGLFWWindow::ofAppGLFWWindow(){
     pixelScreenCoordScale = 1;
 	nFramesSinceWindowResized = 0;
 	iconSet = false;
+	bDecoration = true;
 	windowP = NULL;
 	windowW = 0;
 	windowH = 0;
@@ -56,6 +57,9 @@ ofAppGLFWWindow::~ofAppGLFWWindow(){
 	close();
 }
 
+void ofAppGLFWWindow::setWindowDecoration(bool b){
+	bDecoration  = b;
+}
 void ofAppGLFWWindow::close(){
 	if(windowP){
 		glfwDestroyWindow(windowP);
@@ -132,6 +136,7 @@ void ofAppGLFWWindow::setup(const ofGLFWWindowSettings & _settings){
 //	ofLogNotice("ofAppGLFWWindow") << "WINDOW MODE IS " << screenMode;
 
 	ofWindowMode requestedMode = _settings.windowMode;
+	glfwWindowHint(GLFW_DECORATED, bDecoration); 
 	glfwDefaultWindowHints();
 	glfwWindowHint(GLFW_RED_BITS, settings.redBits);
 	glfwWindowHint(GLFW_GREEN_BITS, settings.greenBits);
