@@ -424,7 +424,7 @@ bool ofFile::openStream(Mode _mode, bool _binary){
 		case WriteOnly:
 		case ReadWrite:
 		case Append:
-			ofFilePath::createEnclosingDirectory(path());
+			ofFilePath::createEnclosingDirectory(path());//如果添加ofUtf8ToLocale(),会让ofxGui在保存中文路径的xml配置时产生多余的乱码空文件
 			break;
 		case Reference:
 		case ReadOnly:
@@ -437,21 +437,21 @@ bool ofFile::openStream(Mode _mode, bool _binary){
 
 		case ReadOnly:
 			if(exists()){
-			 fstream::open(path().c_str(), ios::in | binary_mode);
+			 fstream::open(ofUtf8ToLocale(path().c_str()), ios::in | binary_mode);
 			}
 			break;
 
-		case WriteOnly:
-			fstream::open(path().c_str(), ios::out | binary_mode);
-			break;
+	 case WriteOnly:
+		 fstream::open(ofUtf8ToLocale(path().c_str()), ios::out | binary_mode);
+		 break;
 
 		case ReadWrite:
-			fstream::open(path().c_str(), ios_base::in | ios_base::out | binary_mode);
-			break;
+		 fstream::open(ofUtf8ToLocale(path().c_str()), ios_base::in | ios_base::out | binary_mode);
+		 break;
 
 		case Append:
-			fstream::open(path().c_str(), ios::out | ios::app | binary_mode);
-			break;
+		 fstream::open(ofUtf8ToLocale(path().c_str()), ios::out | ios::app | binary_mode);
+		 break;
 	}
 	return fstream::good();
 }
@@ -459,7 +459,7 @@ bool ofFile::openStream(Mode _mode, bool _binary){
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::open(string _path, Mode _mode, bool binary){
 	close();
-	myFile = File(ofToDataPath(_path));
+	myFile = File(ofToDataPath(_path));//用了外部转换换的方法，现在不用再内部修改了File(ofLocaleToUtf8(ofToDataPath(_path)))。
 	return openStream(_mode, binary);
 }
 
@@ -990,7 +990,7 @@ void ofDirectory::open(string path){
 	path = ofFilePath::getPathForDirectory(path);
 	originalDirectory = path;
 	files.clear();
-	myDir = File(ofToDataPath(path));
+	myDir = File(ofToDataPath(path));//用了外部转换换的方法，现在不用再内部修改了。File(ofLocaleToUtf8(ofToDataPath(path)));
 }
 
 //------------------------------------------------------------------------------------------------------------
@@ -1272,11 +1272,11 @@ int ofDirectory::listDir(){
 		ofRemove(files, extensionFilter);
 	}
 
-	if(ofGetLogLevel() == OF_LOG_VERBOSE){
+	if(ofGetLogLevel() == OF_LOG_VERBOSE){//这里需要修改,否则控制台会输出乱码。
 		for(int i = 0; i < (int)size(); i++){
-			ofLogVerbose() << "\t" << getName(i);
+			ofLogVerbose() << "\t" <<ofUtf8ToLocale (getName(i));
 		}
-		ofLogVerbose() << "listed " << size() << " files in \"" << originalDirectory << "\"";
+		ofLogVerbose() << "listed " << size() << " files in \"" << ofUtf8ToLocale(originalDirectory) << "\"";
 	}
 
 	return size();

@@ -852,3 +852,141 @@ ofTargetPlatform ofGetTargetPlatform(){
     return OF_TARGET_EMSCRIPTEN;
 #endif
 }
+
+string ofUtf8ToLocale(const string & utf8)
+{
+  int size = MultiByteToWideChar(CP_UTF8, // code page
+                             MB_ERR_INVALID_CHARS, // character-type options
+                             utf8.c_str(), // address of string to map
+                             -1, // NULL terminated
+                             NULL, // address of wide-character buffer
+                             0) + 1;               // size of buffer
+
+
+  WCHAR * pWideChar = new WCHAR[size];
+
+
+  MultiByteToWideChar(CP_UTF8, // code page
+                      MB_ERR_INVALID_CHARS, // character-type options
+                      utf8.c_str(), // address of string to map
+                      -1, // NULL terminated
+                      pWideChar, // address of wide-character buffer
+                      size);                // size of buffer
+
+
+  int UsedDefaultChar = 0;
+
+
+  size = WideCharToMultiByte(CP_THREAD_ACP, // code page
+                             WC_COMPOSITECHECK |
+                             WC_DEFAULTCHAR, // performance and mapping flags
+                             pWideChar, // address of wide-character string
+                             -1, // NULL terminated
+                             NULL, // address of buffer for new string
+                             0, // size of buffer
+                             "?", // address of default for unmappable characters
+                             & UsedDefaultChar) + 1; // address of flag set when default char used
+
+
+  char * pLocal = new char[size];
+
+
+  WideCharToMultiByte(CP_THREAD_ACP, // code page
+                      WC_COMPOSITECHECK |
+                      WC_DEFAULTCHAR, // performance and mapping flags
+                      pWideChar, // address of wide-character string
+                      -1, // NULL terminated
+                      pLocal, // address of buffer for new string
+                      size, // size of buffer
+                      "?", // address of default for unmappable characters
+                      & UsedDefaultChar);     // address of flag set when default char used
+
+
+  string Local = pLocal;
+
+
+  delete [] pWideChar;
+  delete [] pLocal;
+
+
+  return Local;
+}
+
+
+string ofLocaleToUtf8(const string & locale)
+{
+  int size = MultiByteToWideChar(CP_THREAD_ACP, // code page
+                             MB_ERR_INVALID_CHARS, // character-type options
+                             locale.c_str(), // address of string to map
+                             -1, // NULL terminated
+                             NULL, // address of wide-character buffer
+                             0) + 1;               // size of buffer
+
+
+  WCHAR * pWideChar = new WCHAR[size];
+
+
+  MultiByteToWideChar(CP_THREAD_ACP, // code page
+                      MB_ERR_INVALID_CHARS, // character-type options
+                      locale.c_str(), // address of string to map
+                      -1, // NULL terminated
+                      pWideChar, // address of wide-character buffer
+                      size);                // size of buffer
+
+
+  size = WideCharToMultiByte(CP_UTF8, // code page
+                             0, // performance and mapping flags
+                             pWideChar, // address of wide-character string
+                             -1, // NULL terminated
+                             NULL, // address of buffer for new string
+                             0, // size of buffer
+                             NULL, // address of default for unmappable characters
+                             NULL) + 1; // address of flag set when default char used
+
+
+  char * pUtf8 = new char[size];
+
+
+  WideCharToMultiByte(CP_UTF8, // code page
+                      0, // address of wide-character string
+                      pWideChar, // address of wide-character string
+                      -1, // NULL terminated
+                      pUtf8, // address of buffer for new string
+                      size, // size of buffer
+                      NULL, // address of default for unmappable characters
+                      NULL);     // address of flag set when default char used
+
+
+  string Utf8 = pUtf8;
+
+
+  delete [] pWideChar;
+  delete [] pUtf8;
+
+
+  return Utf8;
+
+
+}
+
+std::wstring ofStrToWstr(const std::string& s)  
+{  
+    setlocale(LC_ALL, "chs");   
+    const char* _Source = s.c_str();  
+    size_t _Dsize = s.size() + 1;  
+    wchar_t *_Dest = new wchar_t[_Dsize];  
+    wmemset(_Dest, 0, _Dsize);  
+    mbstowcs(_Dest,_Source,_Dsize);  
+    std::wstring result = _Dest;  
+    delete []_Dest;  
+    setlocale(LC_ALL, "C");  
+    return result;  
+}
+
+std::string ofUtf16ToUtf8(const std::string& s)
+{
+	string result;
+	std::wstring utf16_name = ofStrToWstr(s);
+	Poco::UnicodeConverter::toUTF8(utf16_name,result);
+	return result;
+}
