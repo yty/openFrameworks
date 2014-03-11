@@ -1056,7 +1056,8 @@ ofMesh ofTexture::getQuad(const ofPoint & p1, const ofPoint & p2, const ofPoint 
 //----------------------------------------------------------
 void ofTexture::readToPixels(ofPixels & pixels) const {
 #ifndef TARGET_OPENGLES
-	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(texData.glTypeInternal));
+	GLuint glType = ofGetGLFormatFromInternal(texData.glTypeInternal);
+	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(glType));
 	ofSetPixelStoreiAlignment(GL_PACK_ALIGNMENT,pixels.getWidth(),pixels.getBytesPerChannel(),pixels.getNumChannels());
 	glBindTexture(texData.textureTarget,texData.textureID);
 	glGetTexImage(texData.textureTarget,0,ofGetGlFormat(pixels),GL_UNSIGNED_BYTE, pixels.getData());
@@ -1067,7 +1068,8 @@ void ofTexture::readToPixels(ofPixels & pixels) const {
 //----------------------------------------------------------
 void ofTexture::readToPixels(ofShortPixels & pixels) const {
 #ifndef TARGET_OPENGLES
-	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(texData.glTypeInternal));
+	GLuint glType = ofGetGLFormatFromInternal(texData.glTypeInternal);
+	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(glType));
 	ofSetPixelStoreiAlignment(GL_PACK_ALIGNMENT,pixels.getWidth(),pixels.getBytesPerChannel(),pixels.getNumChannels());
 	glBindTexture(texData.textureTarget,texData.textureID);
 	glGetTexImage(texData.textureTarget,0,ofGetGlFormat(pixels),GL_UNSIGNED_SHORT,pixels.getData());
@@ -1077,7 +1079,8 @@ void ofTexture::readToPixels(ofShortPixels & pixels) const {
 
 void ofTexture::readToPixels(ofFloatPixels & pixels) const {
 #ifndef TARGET_OPENGLES
-	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(texData.glTypeInternal));
+	GLuint glType = ofGetGLFormatFromInternal(texData.glTypeInternal);
+	pixels.allocate(texData.width,texData.height,ofGetImageTypeFromGLType(glType));
 	ofSetPixelStoreiAlignment(GL_PACK_ALIGNMENT,pixels.getWidth(),pixels.getBytesPerChannel(),pixels.getNumChannels());
 	glBindTexture(texData.textureTarget,texData.textureID);
 	glGetTexImage(texData.textureTarget,0,ofGetGlFormat(pixels),GL_FLOAT,pixels.getData());
