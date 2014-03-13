@@ -192,7 +192,7 @@ void ofxSlider<Type>::render(){
 	ofSetColor(thisTextColor);
 
 	bindFontTexture();
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	string valStr = ofToString((float)value);
 	unicodeFont.draw(getName(),fontSize, b.x + textPadding, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12)));
 	unicodeFont.draw(valStr,fontSize, b.x + b.width - textPadding - getTextBoundingBox(valStr,0,0).width, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12)));

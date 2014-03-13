@@ -91,7 +91,7 @@ void ofxPanel::render(){
 	ofSetColor(thisTextColor);
 
 	bindFontTexture();
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	unicodeFont.draw(getName(),fontSize+6, textPadding + b.x, b.y + header / 2 + fontSize/2 - (2 * (fontSize/12)));
 #else
 	textMesh.draw();

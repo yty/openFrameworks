@@ -50,7 +50,7 @@ void ofxLabel::render() {
     ofSetColor(textColor);
 
     bindFontTexture();
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	string name;
     if(!getName().empty()){
     	name = getName() + ": ";

@@ -6,8 +6,7 @@
 #include "ofTrueTypeFont.h"
 #include "ofBitmapFont.h"
 
-//#define SUPPORT_FONTSTASH
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 #include "ofxFontStash.h"
 #endif
 
@@ -88,7 +87,7 @@ protected:
 	static ofTrueTypeFont font;
 	static bool fontLoaded;
 	static bool useTTF;
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	static ofxFontStash unicodeFont;
 #endif
 

@@ -59,7 +59,7 @@ int ofxBaseGui::fontSize = 12;
 
 ofTrueTypeFont ofxBaseGui::font;
 
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 ofxFontStash ofxBaseGui::unicodeFont;
 #endif
 
@@ -90,7 +90,7 @@ void ofxBaseGui::loadFont(string filename, int fontsize, bool _bAntiAliased, boo
 	font.load(filename,fontsize,_bAntiAliased,_bFullCharacterSet,dpi);
 	fontLoaded = true;
 	useTTF = true;
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	unicodeFont.setup(filename);
 	fontSize = fontsize;
 #endif
