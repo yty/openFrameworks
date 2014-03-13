@@ -129,7 +129,7 @@ void ofxDropDownList::render(){
 		ofSetColor(thisTextColor);
 
 		bindFontTexture();
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 		unicodeFont.draw(getItemName(i),fontSize, b.x+textPadding , b.y+(b.height /items.size())/2 + fontSize/2 - (2 * (fontSize/12)) + (i*defaultHeight));
 #else
 		textMH[i].draw();

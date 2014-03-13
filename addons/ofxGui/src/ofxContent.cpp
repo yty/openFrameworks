@@ -59,7 +59,7 @@ void ofxContent::render() {
 	}
     ofSetColor(textColor);
     bindFontTexture();
-#ifdef SUPPORT_FONTSTASH
+#ifdef SONOVO_FONTSTASH
 	unicodeFont.draw(name,fontSize, b.x + textPadding,b.y + defaultHeight/2 + fontSize/2 - (2 * (fontSize/12)) + b.height-defaultHeight);
 #else
 	textMesh.draw();
