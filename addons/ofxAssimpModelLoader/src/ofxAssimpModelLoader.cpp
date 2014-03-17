@@ -264,8 +264,8 @@ void ofxAssimpModelLoader::loadGLResources(){
                 ofLogVerbose("ofxAssimpModelLoader") << "loadGLResource(): texture already loaded: \""
 					<< file.getFileName() + "\" from \"" << realPath << "\"";
             } else {
-                ofTexture texture;
-                bool bTextureLoadedOk = ofLoadImage(texture, realPath);
+                ofTexture * texture = new ofTexture();
+				bool bTextureLoadedOk = ofLoadImage(*texture, ofUtf8ToLocale(realPath));
                 if(bTextureLoadedOk) {
                     textures.push_back(ofxAssimpTexture(texture, realPath));
                     assimpTexture = textures.back();
