@@ -428,7 +428,7 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 	cfgSize=sizeof(cfg);
 	GetCommConfig(hComm,&cfg,&cfgSize);
 	int bps = baud;
-	sprintf(buf,"baud=%d parity=%d data=%d stop=%d",bps,parity,dataBits,stopBits);
+	sprintf(buf,"baud=%d parity=%c data=%d stop=%d",bps,parity,dataBits,stopBits);
 
 		// Set baudrate and bits etc.
 		// Note that BuildCommDCB() clears XON/XOFF and hardware control by default
