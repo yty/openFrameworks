@@ -38,8 +38,9 @@ bool ofGstVideoPlayer::loadMovie(string name){
 	if( name.find( "file://",0 ) != string::npos){
 		bIsStream		= false;
 	}else if( name.find( "://",0 ) == string::npos){
-		GError * err = NULL;
-		name = gst_filename_to_uri(ofToDataPath(name).c_str(),&err);
+		//GError * err = NULL;
+		//name = gst_filename_to_uri(ofToDataPath(name).c_str(),&err);
+		name 			= "file://"+ofToDataPath(name,true);
 		bIsStream		= false;
 	}else{
 		bIsStream		= true;

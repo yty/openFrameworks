@@ -74,16 +74,16 @@ void ofxOscSender::sendBundle( ofxOscBundle& bundle )
 	socket->Send( p.Data(), p.Size() );
 }
 
-void ofxOscSender::sendMessage( ofxOscMessage& message )
+void ofxOscSender::sendMessage( ofxOscMessage& message ,bool wrapInBundle)
 {
 	static const int OUTPUT_BUFFER_SIZE = 16384;
 	char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
 	// serialise the message
-	p << osc::BeginBundleImmediate;
+	if(wrapInBundle) p << osc::BeginBundleImmediate;
 	appendMessage( message, p );
-	p << osc::EndBundle;
+	if(wrapInBundle) p << osc::EndBundle;
 
 	socket->Send( p.Data(), p.Size() );
 }
