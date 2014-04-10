@@ -64,7 +64,9 @@ public:
 	virtual ofAbstractParameter & getParameter() = 0;
 	static void loadFont(string filename, int fontsize = 12, bool _bAntiAliased=true, bool _bFullCharacterSet=false, int dpi=0);
 	static void setUseTTF(bool bUseTTF);
-
+    
+    void registerMouseEvents();
+    void unregisterMouseEvents();
 
 	virtual bool mouseMoved(ofMouseEventArgs & args) = 0;
 	virtual bool mousePressed(ofMouseEventArgs & args) = 0;
@@ -113,4 +115,5 @@ protected:
 
 private:
 	unsigned long currentFrame;
+    bool bRegisteredForMouseEvents;
 }; 
