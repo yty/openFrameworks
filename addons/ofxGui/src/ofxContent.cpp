@@ -82,7 +82,7 @@ void ofxContent::valueChanged(bool & value){
 }
 
 bool ofxContent::mousePressed(ofMouseEventArgs & args){
-	if (b.inside(args.x,args.y)){
+	if (isGuiDrawing()&&b.inside(args.x,args.y)){
 		if (args.button == 0){
 			contentSelect = this->content;
 			nameSelect = name;
