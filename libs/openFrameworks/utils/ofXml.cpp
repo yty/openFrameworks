@@ -145,6 +145,11 @@ string ofXml::toString() const
     
     Poco::XML::DOMWriter writer;
     writer.setOptions(Poco::XML::XMLWriter::PRETTY_PRINT);
+
+#ifdef TARGET_WIN32	 
+	writer.setNewLine(Poco::XML::XMLWriter::NEWLINE_LF);
+#endif
+
     if(document) {
         try {
             writer.writeNode( stream, getPocoDocument() );
