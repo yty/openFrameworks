@@ -6,10 +6,10 @@
 class ofxContent: public ofxBaseGui {
 public:
 	ofxContent(){}
-    ofxContent(string contentName, ofBaseDraws &content, float width = defaultWidth, float height = defaultHeight);
+	ofxContent(string contentName, ofBaseDraws &content, float width = defaultWidth);
 	virtual ~ofxContent();
 
-    ofxContent * setup(string contentName, ofBaseDraws &content, float width = defaultWidth, float height = defaultHeight);
+    ofxContent * setup(string contentName, ofBaseDraws &_content, float _fixwidth= defaultWidth);
 
     // Abstract methods we must implement, but have no need for!
     virtual bool mouseMoved(ofMouseEventArgs & args){return false;}
@@ -34,6 +34,12 @@ public:
     ofAbstractParameter & getParameter();
 
 protected:
+	void fixSize();//terry add
+
+	float fixWidth; //terry add
+	float initWidth; //terry add
+	float initHeight; //terry add
+
     void render();
     ofParameter<string> label;
 	ofPath fg;

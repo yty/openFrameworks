@@ -7,24 +7,35 @@ ofBaseDraws* ofxGetCurrentContent(){
 	return ofxContent::getCurrentContent();
 }
 
-ofxContent::ofxContent(string contentName, ofBaseDraws &_content, float width, float height){
-	setup(contentName,_content,width,height);
+ofxContent::ofxContent(string contentName, ofBaseDraws &_content, float fixwidth){
+	setup(contentName,_content,fixwidth);
 }
 
 ofxContent::~ofxContent(){
     value.removeListener(this,&ofxContent::valueChanged);
 }
 
-ofxContent* ofxContent::setup(string contentName, ofBaseDraws &_content, float width, float height) {
-	b.width  = defaultWidth;
-	b.height = height * (defaultWidth/width) + defaultHeight;
+ofxContent* ofxContent::setup(string contentName, ofBaseDraws &_content, float _fixwidth) {
 	this->name = contentName;
 	this->content = &_content;
+	this->fixWidth = _fixwidth;
+	this->initWidth = content->getWidth();
+	this->initHeight = content->getHeight();
+
+	fixSize();
+
 	ofRegisterMouseEvents(this,OF_EVENT_ORDER_BEFORE_APP);
 	value.set(contentName,false);
 	value.addListener(this,&ofxContent::valueChanged);
 	generateDraw();
     return this;
+}
+
+void ofxContent::fixSize(){
+
+	b.width  = fixWidth;
+	b.height = fixWidth * (content->getHeight()/content->getWidth()) * ( content->getWidth()/initWidth) + defaultHeight;
+
 }
 
 void ofxContent::generateDraw(){
@@ -48,9 +59,10 @@ void ofxContent::generateDraw(){
 }
 
 void ofxContent::render() {
+	fixSize();
 	value = (nameSelect == this->name);
 	ofColor c = ofGetStyle().color;
-	this->content->draw(b.x , b.y,b.width,b.height - 18);
+	this->content->draw(b.x , b.y,b.width*(content->getWidth()/initWidth),b.height - defaultHeight);
 	bg.draw();
 	fg.draw();
 	ofBlendMode blendMode = ofGetStyle().blendingMode;

@@ -111,7 +111,7 @@ void ofxGuiGroup::add(ofxBaseGui * element){
 		}
 	}
     
-	parameters.add(element->getParameter());
+	parameters.add((ofParameterGroup &)(element->getParameter()));
 	generateDraw();
 }
 
@@ -288,6 +288,7 @@ void ofxGuiGroup::render(){
     
 	if(!minimized){
 		for(int i = 0; i < (int)collection.size(); i++){
+			setWidthElements(b.width); //terry 忘了为什么加了
 			collection[i]->draw();
 		}
 	}

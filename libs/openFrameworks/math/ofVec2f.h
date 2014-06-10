@@ -855,6 +855,8 @@ public:
 	/// \param vec The vector to calculate the angle to
 	/// \returns The angle in radians (-PI...PI)
     float angleRad( const ofVec2f& vec ) const;
+	float angle360( const ofVec2f& vec ) const;
+	float angleRad360(const ofVec2f& vec) const;
 	
 	/// \}
 
@@ -1482,7 +1484,13 @@ inline float ofVec2f::dot( const ofVec2f& vec ) const {
 	return x*vec.x + y*vec.y;
 }
 
+inline float ofVec2f::angle360( const ofVec2f& vec ) const {
+	return (float) (atan2( vec.y-y,vec.x-x)*RAD_TO_DEG);
+}
 
+inline float ofVec2f::angleRad360( const ofVec2f& vec ) const {
+	return atan2( vec.y-y,vec.x-x);
+}
 
 
 
