@@ -76,7 +76,6 @@ void ofxOscSender::sendBundle( ofxOscBundle& bundle )
 	socket->Send( p.Data(), p.Size() );
 }
 
-void ofxOscSender::sendMessage( ofxOscMessage& message )
 void ofxOscSender::sendMessage( ofxOscMessage& message ,bool wrapInBundle)
 {
     //setting this much larger as it gets trimmed down to the size its using before being sent.

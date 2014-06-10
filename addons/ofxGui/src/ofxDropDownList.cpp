@@ -185,7 +185,7 @@ void ofxDropDownList::valueChanged(bool & value){
 }
 
 void ofxDropDownList::addData(ofAbstractParameter & parameter){
-	parameters.add(parameter);
+	parameters.add((ofParameterGroup &)parameter);
 }
 
 string ofxDropDownList::getItemName(int index){

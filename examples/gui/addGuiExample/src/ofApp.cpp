@@ -2,25 +2,28 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	image0.loadImage("F:/openFrameworks/examples/graphics/imageLoaderExample/bin/data/images/bikers.jpg");
-	image1.loadImage("F:/openFrameworks/examples/graphics/imageLoaderExample/bin/data/images/tdf_1972_poster.jpg");
-	image2.loadImage("F:/openFrameworks/examples/graphics/imageLoaderExample/bin/data/images/gears.gif");
+
+	ofSetDataPathRoot("..\\..\\..\\..\\examples\\graphics\\imageLoaderExample\\bin\\data\\images\\");
+
+	image0.loadImage(ofToDataPath( "bikers.jpg"));
+	image1.loadImage(ofToDataPath( "tdf_1972_poster.jpg"));
+	image2.loadImage(ofToDataPath( "gears.gif"));
 
 	vector<string> sizeArray;
 	sizeArray.push_back("你好");
 	sizeArray.push_back("测试");
 	sizeArray.push_back("欢迎");
 
-	ofxGuiSetFont("simfang.ttf",20);
+	ofxGuiSetFont("Microsoft YaHei",16);
 	ofxGuiSetDefaultWidth(300);
 	ofxGuiSetDefaultHeight(30);
 	gui.setUseTTF(true);
 	gui.setup("UI界面");
 	gui.add(testToggle.setup("测试",false));
 	gui.add(testDropDownList.setup("测试DropDownList",sizeArray,2));
-	gui.add(testContent0.setup("image测试0",image0,image0.getWidth(),image0.getHeight()));
-	gui.add(testContent1.setup("image测试1",image1,image1.getWidth(),image1.getHeight()/2));
-	gui.add(testContent2.setup("image测试2",image2,image2.getWidth(),image2.getHeight()));
+	gui.add(testContent0.setup("image测试0",image0));
+	//gui.add(testContent1.setup("image测试1",image1));
+	//gui.add(testContent2.setup("image测试2",image2));
 	gui.add(testQuadWarp.setup("image测试QuadWarp",image0,image0.getWidth(),image0.getHeight()));
 
 	testDropDownList.addListener(this,&ofApp::valueChange);

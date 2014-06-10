@@ -162,7 +162,8 @@ public:
 	 */
     float angle( const ofVec2f& vec ) const;
     float angleRad( const ofVec2f& vec ) const;
-	
+	float angle360( const ofVec2f& vec ) const;
+	float angleRad360(const ofVec2f& vec) const;
 	
     /**
 	 * Dot Product.
@@ -737,7 +738,13 @@ inline float ofVec2f::dot( const ofVec2f& vec ) const {
 	return x*vec.x + y*vec.y;
 }
 
+inline float ofVec2f::angle360( const ofVec2f& vec ) const {
+	return (float) (atan2( vec.y-y,vec.x-x)*RAD_TO_DEG);
+}
 
+inline float ofVec2f::angleRad360( const ofVec2f& vec ) const {
+	return atan2( vec.y-y,vec.x-x);
+}
 
 
 

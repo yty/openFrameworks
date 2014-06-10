@@ -237,9 +237,9 @@ void ofxAssimpModelLoader::loadGLResources(){
 					<< file.getFileName() + "\" from \"" << realPath << "\"";
             } else {
                 ofTexture texture;
-                bool bTextureLoadedOk = ofLoadImage(texture, realPath);
+                bool bTextureLoadedOk = ofLoadImage(texture, ofUtf8ToLocale(realPath));
                 if(bTextureLoadedOk) {
-                    textures.push_back(ofxAssimpTexture(texture, realPath));
+                    textures.push_back(ofxAssimpTexture(texture, ofUtf8ToLocale(realPath)));
                     assimpTexture = textures.back();
                     meshHelper.assimpTexture = assimpTexture;
                     ofLogVerbose("ofxAssimpModelLoader") << "loadGLResource(): texture loaded, dimensions: "
