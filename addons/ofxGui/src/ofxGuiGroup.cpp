@@ -111,7 +111,7 @@ void ofxGuiGroup::add(ofxBaseGui * element){
 		}
 	}
     
-	parameters.add((ofParameterGroup &)(element->getParameter()));
+	parameters.add(element->getParameter());
 	generateDraw();
 }
 
