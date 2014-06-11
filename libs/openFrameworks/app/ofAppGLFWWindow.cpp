@@ -303,6 +303,10 @@ void ofAppGLFWWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr){
     glfwTerminate();
 }
 
+void ofAppGLFWWindow::windowShouldClose(){
+	glfwSetWindowShouldClose(windowP,1);
+}
+
 //------------------------------------------------------------
 void ofAppGLFWWindow::display(void){
 
@@ -830,8 +834,7 @@ ofOrientation ofAppGLFWWindow::getOrientation(){
 void ofAppGLFWWindow::exitApp(){
 	// Terminate GLFW
 	glfwTerminate();
-
-	OF_EXIT_APP(0);
+	std::exit(0);
 }
 
 //------------------------------------------------------------
@@ -932,8 +935,9 @@ void ofAppGLFWWindow::error_cb(int errorCode, const char* errorDescription){
 }
 
 //------------------------------------------------------------
-void ofAppGLFWWindow::keyboard_cb(GLFWwindow* windowP_, int key, int scancode, unsigned int codepoint, int action, int mods) {
-	switch (key) {
+void ofAppGLFWWindow::keyboard_cb(GLFWwindow* windowP_, int keycode, int scancode, unsigned int codepoint, int action, int mods) {
+	int key;
+	switch (keycode) {
 		case GLFW_KEY_ESCAPE:
 			key = OF_KEY_ESC;
 			break;
@@ -1045,9 +1049,9 @@ void ofAppGLFWWindow::keyboard_cb(GLFWwindow* windowP_, int key, int scancode, u
 	}
 
 	if(action == GLFW_PRESS || action == GLFW_REPEAT){
-		ofNotifyKeyPressed(key);
+		ofNotifyKeyPressed(key,keycode,scancode,codepoint);
 	}else if (action == GLFW_RELEASE){
-		ofNotifyKeyReleased(key);
+		ofNotifyKeyReleased(key,keycode,scancode,codepoint);
 	}
 }
 
