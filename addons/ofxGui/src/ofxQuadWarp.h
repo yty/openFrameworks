@@ -10,10 +10,10 @@
 class ofxQuadWarp: public ofxBaseGui {
 public:
     ofxQuadWarp();
-    ofxQuadWarp(string quadWarpName, ofBaseDraws &content,float width = defaultWidth, float height = defaultHeight);
+    ofxQuadWarp(string quadWarpName, ofBaseDraws &content,float _fixwidth= defaultWidth);
     virtual ~ofxQuadWarp();
 
-	ofxGuiGroup * setup(string quadWarpName, ofBaseDraws &content,float width = defaultWidth, float height = defaultHeight);
+	ofxGuiGroup * setup(string quadWarpName, ofBaseDraws &content,float _fixwidth= defaultWidth);
 
     // Abstract methods we must implement, but have no need for!
     virtual bool mouseMoved(ofMouseEventArgs & args);
@@ -32,7 +32,7 @@ public:
 	}
 
     ofAbstractParameter & getParameter();
-	void InitQuadPos();
+	void InitQuadPos(float w,float h);
 
 	ofVec3f * getDstQuadPos();
 	ofVec3f * getSrcQuadPos();
@@ -43,6 +43,8 @@ public:
     void maximizeAll();
 
 protected:
+	float fixWidth; //terry add
+
     void render();
     void valueChanged(string & value);
     bool setValue(float mx, float my, bool bCheckBounds);
