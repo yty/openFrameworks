@@ -9,35 +9,39 @@ ofxQuadWarp::ofxQuadWarp(){
 	bCircle.push_back(false);
 }
 
-ofxQuadWarp::ofxQuadWarp(string quadWarpName, ofBaseDraws &content, float width, float height){
-	setup(quadWarpName,content,width,height);
+ofxQuadWarp::ofxQuadWarp(string quadWarpName, ofBaseDraws &content, float _fixwidth){
+	setup(quadWarpName,content,_fixwidth);
 }
 
 ofxQuadWarp::~ofxQuadWarp(){
    
 }
 
-ofxGuiGroup* ofxQuadWarp::setup(string quadWarpName, ofBaseDraws &content, float width, float height) {
+ofxGuiGroup* ofxQuadWarp::setup(string quadWarpName, ofBaseDraws &_content, float _fixwidth) {
+
+	name = quadWarpName;
+	this->content = &_content;
 	b.x = 0;
 	b.y = 0;
-	b.width  = defaultWidth - defaultWidth * 0.02;
-	b.height = height * (defaultWidth/width);
-	name = quadWarpName;
+
+	this->fixWidth = _fixwidth;
+
 	ofRegisterMouseEvents(this,OF_EVENT_ORDER_BEFORE_APP);
-	this->content = &content;
 
-	this->width = b.width/this->content->getWidth();
-	this->height = b.height/this->content->getHeight();
-
-	InitQuadPos();
+	InitQuadPos(content->getWidth(),content->getHeight());
+	
 	quadWarpGroup.setup(quadWarpName);
 	quadWarpGroup.add(this);
 	return &quadWarpGroup;
 }
 
+
 void ofxQuadWarp::render() {
+
+
 	ofColor c = ofGetStyle().color;
-	content->draw(b.x , b.y,b.width,b.height);
+	this->content->draw(b.x , b.y,b.width,b.height );
+
 	bg.draw();
 	circumscribe.clear();
 	circumscribe.setStrokeWidth(3);
@@ -158,18 +162,27 @@ bool ofxQuadWarp::setValue(float mx, float my, bool bCheck){
 	return false;
 }
 
-void ofxQuadWarp::InitQuadPos(){
+void ofxQuadWarp::InitQuadPos(float w,float h){
+	b.width  = fixWidth;
+	b.height = fixWidth * (h/w);// * ( content->getWidth()/initWidth) ;
+	
+	this->width = b.width/w;
+	this->height = b.height/h;
+	
 	dstQuadPos = new ofParameter<ofVec3f>[4];
 	dstQuadPos[0].set("dstQuadPos0",ofVec3f(0,0));
-	dstQuadPos[1].set("dstQuadPos1",ofVec3f(content->getWidth(),0));
-	dstQuadPos[2].set("dstQuadPos2",ofVec3f(content->getWidth(),content->getHeight()));
-	dstQuadPos[3].set("dstQuadPos3",ofVec3f(0,content->getHeight()));
+	dstQuadPos[1].set("dstQuadPos1",ofVec3f(w,0));
+	dstQuadPos[2].set("dstQuadPos2",ofVec3f(w,h));
+	dstQuadPos[3].set("dstQuadPos3",ofVec3f(0,h));
 	
 	srcQuadPos = new ofPoint[4];
 	srcQuadPos[0] = ofVec3f(0,0);
-	srcQuadPos[1] = ofVec3f(content->getWidth(),0);
-	srcQuadPos[2] = ofVec3f(content->getWidth(),content->getHeight());
-	srcQuadPos[3] = ofVec3f(0,content->getHeight());
+	srcQuadPos[1] = ofVec3f(w,0);
+	srcQuadPos[2] = ofVec3f(w,h);
+	srcQuadPos[3] = ofVec3f(0,h);
+
+	ofLogNotice("ofxQuadWarp")<<"InitQuadPos()=>"<<w<<","<<h;
+	
 }
 
 ofVec3f * ofxQuadWarp::getDstQuadPos(){ 
