@@ -1,21 +1,21 @@
-<UI界面>
-	<dropDownList>
+﻿<UI界面>
+	<测试DropDownList>
 		<dropDownList>
-			<item0>你好</item0>
-			<itemValue0>0</itemValue0>
-			<item1>测试</item1>
+			<item0>320x240</item0>
+			<itemValue0>1</itemValue0>
+			<item1>640x480</item1>
 			<itemValue1>0</itemValue1>
-			<item2>欢迎</item2>
-			<itemValue2>1</itemValue2>
+			<item2>300x300</item2>
+			<itemValue2>0</itemValue2>
 		</dropDownList>
-	</dropDownList>
-	<Content>image测试2</Content>
-	<quadRevise>
-		<dstQuadPos0>0, 0, 0</dstQuadPos0>
-		<dstQuadPos1>200, 0, 0</dstQuadPos1>
-		<dstQuadPos2>200, 155.6, 0</dstQuadPos2>
-		<dstQuadPos3>0, 155.6, 0</dstQuadPos3>
-	</quadRevise>
-	<测试>0</测试>
+	</测试DropDownList>
+	<image测试QuadWarp>
+		<image测试QuadWarp>
+			<dstQuadPos0>0, 0, 0</dstQuadPos0>
+			<dstQuadPos1>320, 0, 0</dstQuadPos1>
+			<dstQuadPos2>320, 240, 0</dstQuadPos2>
+			<dstQuadPos3>0, 240, 0</dstQuadPos3>
+		</image测试QuadWarp>
+	</image测试QuadWarp>
 <UI界面/>
-</UI界面>
+</UI界面>

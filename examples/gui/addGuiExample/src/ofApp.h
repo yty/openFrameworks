@@ -36,4 +36,7 @@ class ofApp : public ofBaseApp{
 		ofxToggle testToggle;
 
 		ofxFontStash unicodeFont;
+
+		ofVideoGrabber camera;
+
 };

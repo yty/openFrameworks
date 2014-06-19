@@ -9,24 +9,36 @@ void ofApp::setup(){
 	image1.loadImage(ofToDataPath( "tdf_1972_poster.jpg"));
 	image2.loadImage(ofToDataPath( "gears.gif"));
 
+	ofSetDataPathRoot("..\\..\\..\\..\\examples\\gui\\addGuiExample\\bin\\data\\");
+
 	vector<string> sizeArray;
-	sizeArray.push_back("你好");
-	sizeArray.push_back("测试");
-	sizeArray.push_back("欢迎");
+	sizeArray.push_back("320x240");
+	sizeArray.push_back("640x480");
+	sizeArray.push_back("200x480");
+
+	testDropDownList.addListener(this,&ofApp::valueChange);
 
 	ofxGuiSetFont("Microsoft YaHei",16);
 	ofxGuiSetDefaultWidth(300);
 	ofxGuiSetDefaultHeight(30);
+
 	gui.setUseTTF(true);
 	gui.setup("UI界面");
-	gui.add(testToggle.setup("测试",false));
-	gui.add(testDropDownList.setup("测试DropDownList",sizeArray,2));
-	gui.add(testContent0.setup("image测试0",image0));
-	//gui.add(testContent1.setup("image测试1",image1));
-	//gui.add(testContent2.setup("image测试2",image2));
-	gui.add(testQuadWarp.setup("image测试QuadWarp",image0,image0.getWidth(),image0.getHeight()));
+	gui.add(testDropDownList.setup("测试DropDownList",sizeArray,0));
+	gui.add(testContent0.setup("testContent0",image0));
+	gui.add(testContent1.setup("testContent1",image1));
+	gui.add(testQuadWarp.setup("image测试QuadWarp",camera.getTextureReference()));
+	gui.loadFromFile("settings.xml");
 
-	testDropDownList.addListener(this,&ofApp::valueChange);
+}
+
+void ofApp::valueChange(int & value){
+	vector<string> temp = ofSplitString(testDropDownList.getItemName(value),"x");
+	if(camera.isInitialized()){
+		camera.close();
+	}
+	camera.initGrabber(ofToInt(temp[0]),ofToInt(temp[1]));
+	testQuadWarp.InitQuadPos(camera.getWidth(),camera.getHeight());
 }
 
 void ofApp::exit(){
@@ -34,7 +46,7 @@ void ofApp::exit(){
 }
 //--------------------------------------------------------------
 void ofApp::update(){
-
+	camera.update();
 }
 
 //--------------------------------------------------------------
@@ -47,7 +59,11 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	if(key == '1'){
+		image0 = image1;
+	}else if(key == '2'){
+		image0 = image2;
+	}
 }
 
 //--------------------------------------------------------------
@@ -88,10 +104,5 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
-}
-
-void ofApp::valueChange(int & value){
-	string name = ofUtf8ToLocale(testDropDownList.getItemName(value));
-	cout<<name<<endl;
 }
 
