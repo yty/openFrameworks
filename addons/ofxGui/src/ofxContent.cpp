@@ -34,8 +34,8 @@ ofxContent* ofxContent::setup(string contentName, ofBaseDraws &_content, float _
 void ofxContent::fixSize(){
 
 	b.width  = fixWidth;
-	b.height = fixWidth * (content->getHeight()/content->getWidth()) * ( content->getWidth()/initWidth) + defaultHeight;
-
+	//b.height = fixWidth * (content->getHeight()/content->getWidth()) * ( content->getWidth()/initWidth) + defaultHeight;
+	b.height = ((b.width * content->getHeight())/content->getWidth()) + defaultHeight;
 }
 
 void ofxContent::generateDraw(){
@@ -63,7 +63,7 @@ void ofxContent::render() {
 	value = (nameSelect == this->name);
 	ofColor c = ofGetStyle().color;
 	//this->content->draw(b.x , b.y,b.width*(content->getWidth()/initWidth),b.height - defaultHeight);
-	this->content->draw(b.x , b.y,b.width,b.height*(content->getWidth()/b.width) - defaultHeight);
+	this->content->draw(b.x,b.y,b.width,((b.width * content->getHeight())/content->getWidth()));
 	bg.draw();
 	fg.draw();
 	ofBlendMode blendMode = ofGetStyle().blendingMode;
