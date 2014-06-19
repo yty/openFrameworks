@@ -9,7 +9,7 @@ public:
 	ofxContent(string contentName, ofBaseDraws &content, float width = defaultWidth);
 	virtual ~ofxContent();
 
-    ofxContent * setup(string contentName, ofBaseDraws &_content, float _fixwidth= defaultWidth);
+	ofxGuiGroup * setup(string contentName, ofBaseDraws &_content, float _fixwidth= defaultWidth);
 
     // Abstract methods we must implement, but have no need for!
     virtual bool mouseMoved(ofMouseEventArgs & args){return false;}
@@ -35,10 +35,7 @@ public:
 
 protected:
 	void fixSize();//terry add
-
 	float fixWidth; //terry add
-	float initWidth; //terry add
-	float initHeight; //terry add
 
     void render();
     ofParameter<string> label;
@@ -46,10 +43,9 @@ protected:
     void generateDraw();
     void valueChanged(bool & value);
     bool setValue(float mx, float my, bool bCheckBounds){return false;}
-    ofPath bg;
-    ofVboMesh textMesh;
 	ofBaseDraws * content;
 	string name;
+	ofxGuiGroup contentGroup;
 
 public:
 	static ofBaseDraws * getCurrentContent();
