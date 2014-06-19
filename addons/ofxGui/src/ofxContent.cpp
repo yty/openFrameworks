@@ -62,7 +62,8 @@ void ofxContent::render() {
 	fixSize();
 	value = (nameSelect == this->name);
 	ofColor c = ofGetStyle().color;
-	this->content->draw(b.x , b.y,b.width*(content->getWidth()/initWidth),b.height - defaultHeight);
+	//this->content->draw(b.x , b.y,b.width*(content->getWidth()/initWidth),b.height - defaultHeight);
+	this->content->draw(b.x , b.y,b.width,b.height*(content->getWidth()/b.width) - defaultHeight);
 	bg.draw();
 	fg.draw();
 	ofBlendMode blendMode = ofGetStyle().blendingMode;
