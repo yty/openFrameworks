@@ -27,11 +27,12 @@ class ofApp : public ofBaseApp{
 		
 		ofImage image0,image1,image2;
 
-		ofxPanel gui;
+		ofxPanel gui,guiEx;
 		ofxDropDownList testDropDownList;
 		ofxGuiGroup testGroup;
+		ofxGuiGroup testGroup1;
 		
-		ofxContent testContent0,testContent1,testContent2;
+		ofxContent testContent0;
 		ofxQuadWarp testQuadWarp;
 		ofxToggle testToggle;
 
