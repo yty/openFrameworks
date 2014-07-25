@@ -76,7 +76,7 @@ void ofxOscSender::sendBundle( ofxOscBundle& bundle )
 	socket->Send( p.Data(), p.Size() );
 }
 
-void ofxOscSender::sendMessage( ofxOscMessage& message ,bool wrapInBundle)
+void ofxOscSender::sendMessage( ofxOscMessage& message, bool wrapInBundle )
 {
     //setting this much larger as it gets trimmed down to the size its using before being sent.
     //TODO: much better if we could make this dynamic? Maybe have ofxOscMessage return its size?
@@ -112,7 +112,7 @@ void ofxOscSender::sendParameter( const ofAbstractParameter & parameter){
 		if(address.length()) address += "/";
 		ofxOscMessage msg;
 		appendParameter(msg,parameter,address);
-		sendMessage(msg);
+		sendMessage(msg, false);
 	}
 }
 
