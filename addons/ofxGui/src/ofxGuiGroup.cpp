@@ -174,6 +174,10 @@ void ofxGuiGroup::add(ofParameter<ofFloatColor> & parameter){
 	add(new ofxColorSlider_<float>(parameter,b.width));
 }
 
+void ofxGuiGroup::add(ofParameter<ofRectangle> & parameter){
+	add(new ofxRectSlider_<ofRectangle>(parameter,b.width));
+}
+
 void ofxGuiGroup::clear(){
 	collection.clear();
 	b.height = header + spacing + spacingNextElement ;
