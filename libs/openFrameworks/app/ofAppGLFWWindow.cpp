@@ -38,7 +38,7 @@ GLFWwindow* ofAppGLFWWindow::windowP = NULL;
 void ofGLReadyCallback();
 
 //-------------------------------------------------------
-ofAppGLFWWindow::ofAppGLFWWindow():ofAppBaseGLWindow(){
+ofAppGLFWWindow::ofAppGLFWWindow(){
 	bEnableSetupScreen	= true;
 	buttonInUse			= 0;
 	buttonPressed		= false;
@@ -123,17 +123,19 @@ void ofAppGLFWWindow::setStencilBits(int stencil){
 
 
 
+#ifdef TARGET_OPENGLES
+//------------------------------------------------------------
+void ofAppGLFWWindow::setGLESVersion(int glesVersion){
+	glVersionMajor = glesVersion;
+	glVersionMinor = 0;
+}
+#else
 //------------------------------------------------------------
 void ofAppGLFWWindow::setOpenGLVersion(int major, int minor){
 	glVersionMajor = major;
 	glVersionMinor = minor;
 }
-
-
-void ofAppGLFWWindow::setGLESVersion(int glesVersion){
-	glVersionMajor = glesVersion;
-	glVersionMinor = 0;
-}
+#endif
 
 //------------------------------------------------------------
 void ofAppGLFWWindow::setupOpenGL(int w, int h, int screenMode){
