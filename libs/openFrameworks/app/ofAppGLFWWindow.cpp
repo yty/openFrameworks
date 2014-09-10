@@ -75,7 +75,7 @@ ofAppGLFWWindow::ofAppGLFWWindow(){
     setNumSamples(4);
 	iconSet = false;
 	windowP = NULL;
-
+	bDecoration = true; //terry add
 	glfwSetErrorCallback(error_cb);
 }
 
