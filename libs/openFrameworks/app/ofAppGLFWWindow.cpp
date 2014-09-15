@@ -310,6 +310,7 @@ void ofAppGLFWWindow::runAppViaInfiniteLoop(ofBaseApp * appPtr){
 
 	ofNotifySetup();
 	while(!glfwWindowShouldClose(windowP)){
+		glfwPollEvents();
 		ofNotifyUpdate();
 		display();
 	}
@@ -385,7 +386,7 @@ void ofAppGLFWWindow::display(void){
 	}
 
 	nFramesSinceWindowResized++;
-	glfwPollEvents();
+
 
 }
 
