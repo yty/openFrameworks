@@ -7,7 +7,7 @@ class ofxContent: public ofxBaseGui {
 public:
 	ofxContent(){}
 	ofxContent(string contentName, ofBaseDraws &content, float width = defaultWidth);
-	virtual ~ofxContent();
+	~ofxContent();
 
 	ofxGuiGroup * setup(string contentName, ofBaseDraws &_content, float _fixwidth= defaultWidth);
 

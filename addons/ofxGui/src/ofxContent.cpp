@@ -3,6 +3,7 @@
 
 ofBaseDraws * ofxContent::contentSelect = NULL;
 string ofxContent::nameSelect = "";
+
 ofBaseDraws* ofxGetCurrentContent(){
 	return ofxContent::getCurrentContent();
 }
@@ -23,9 +24,13 @@ ofxGuiGroup * ofxContent::setup(string contentName, ofBaseDraws &_content, float
 	fixSize();
 
 	ofRegisterMouseEvents(this,OF_EVENT_ORDER_BEFORE_APP);
+
 	value.set(contentName,false);
+
 	value.addListener(this,&ofxContent::valueChanged);
+
 	generateDraw();
+
 	contentGroup.setup(this->name);
 	contentGroup.add(this);
     return &contentGroup;
@@ -60,7 +65,7 @@ void ofxContent::render() {
 
 ofAbstractParameter & ofxContent::getParameter(){
 	label.set("Content",name);
-	return ofAbstractParameter();
+	return value;//ofAbstractParameter(); terry edit 2014.10.8
 }
 
 void ofxContent::valueChanged(bool & value){
