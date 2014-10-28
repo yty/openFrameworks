@@ -20,6 +20,7 @@ public:
     virtual bool mousePressed(ofMouseEventArgs & args);
     virtual bool mouseDragged(ofMouseEventArgs & args);
     virtual bool mouseReleased(ofMouseEventArgs & args);
+	virtual bool mouseScrolled(ofMouseEventArgs & args){return false;}
 
 	void keyPressed(int key);
 	void keyReleased(int key);
