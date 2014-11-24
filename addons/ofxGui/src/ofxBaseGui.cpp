@@ -68,15 +68,15 @@ bool ofxBaseGui::useTTF = false;
 
 ofxBaseGui::ofxBaseGui(){
 	currentFrame = ofGetFrameNum();
-	serializer = ofPtr<ofBaseFileSerializer> (new ofXml);
+	serializer = std::shared_ptr<ofBaseFileSerializer>(new ofXml);
 
 	thisHeaderBackgroundColor=headerBackgroundColor;
 	thisBackgroundColor=backgroundColor;
 	thisBorderColor=borderColor;
 	thisTextColor=textColor;
 	thisFillColor=fillColor;
-    
-    bRegisteredForMouseEvents = false;
+
+	bRegisteredForMouseEvents = false;
 
 	/*if(!fontLoaded){
 		loadFont(OF_TTF_MONO,10,true,true);
@@ -86,7 +86,7 @@ ofxBaseGui::ofxBaseGui(){
 }
 
 void ofxBaseGui::loadFont(string filename, int fontsize, bool _bAntiAliased, bool _bFullCharacterSet, int dpi){
-	font.loadFont(filename,fontsize,_bAntiAliased,_bFullCharacterSet,dpi);
+	font.load(filename,fontsize,_bAntiAliased,_bFullCharacterSet,dpi);
 	fontLoaded = true;
 	useTTF = true;
 #ifdef SONOVO_FONTSTASH
@@ -103,23 +103,23 @@ void ofxBaseGui::setUseTTF(bool bUseTTF){
 }
 
 ofxBaseGui::~ofxBaseGui(){
-    unregisterMouseEvents();
+	unregisterMouseEvents();
 }
 
 void ofxBaseGui::registerMouseEvents(){
-    if(bRegisteredForMouseEvents == true) {
-        return; // already registered.
-    }
-    bRegisteredForMouseEvents = true;
+	if(bRegisteredForMouseEvents == true) {
+		return; // already registered.
+	}
+	bRegisteredForMouseEvents = true;
 	ofRegisterMouseEvents(this, OF_EVENT_ORDER_BEFORE_APP);
 }
 
 void ofxBaseGui::unregisterMouseEvents(){
-    if(bRegisteredForMouseEvents == false) {
-        return; // not registered.
-    }
+	if(bRegisteredForMouseEvents == false) {
+		return; // not registered.
+	}
 	ofUnregisterMouseEvents(this, OF_EVENT_ORDER_BEFORE_APP);
-    bRegisteredForMouseEvents = false;
+	bRegisteredForMouseEvents = false;
 }
 
 void ofxBaseGui::draw(){
@@ -152,7 +152,7 @@ void ofxBaseGui::unbindFontTexture(){
 }
 
 
-ofMesh & ofxBaseGui::getTextMesh(const string & text, float x, float y){
+ofMesh ofxBaseGui::getTextMesh(const string & text, float x, float y){
 	if(useTTF){
 		return font.getStringMesh(text,x,y);
 	}else{
@@ -189,7 +189,7 @@ void ofxBaseGui::loadFrom(ofBaseSerializer& serializer){
 }
 
 
-void ofxBaseGui::setDefaultSerializer(ofPtr<ofBaseFileSerializer>  _serializer){
+void ofxBaseGui::setDefaultSerializer(std::shared_ptr<ofBaseFileSerializer> _serializer){
 	serializer = _serializer;
 }
 

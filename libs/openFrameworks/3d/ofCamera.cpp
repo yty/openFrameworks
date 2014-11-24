@@ -9,10 +9,14 @@ nearClip(0),
 farClip(0),
 lensOffset(0.0f, 0.0f),
 forceAspectRatio(false),
+aspectRatio(4./3.),
 isActive(false),
 vFlip(false)
 {
 }
+
+//----------------------------------------
+ofCamera::~ofCamera() {}
 
 //----------------------------------------
 void ofCamera::setFov(float f) {
@@ -128,9 +132,6 @@ void ofCamera::begin(ofRectangle viewport) {
 	if(!isActive) ofPushView();
 	isActive = true;
 
-	// autocalculate near/far clip planes if not set by user
-	calcClipPlanes(viewport);
-
 	ofViewport(viewport.x,viewport.y,viewport.width,viewport.height);
 	ofSetOrientation(ofGetOrientation(),vFlip);
 
@@ -138,7 +139,7 @@ void ofCamera::begin(ofRectangle viewport) {
 	ofLoadMatrix( getProjectionMatrix(viewport) );
 
 	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-	ofLoadMatrix( getModelViewMatrix() );
+	ofLoadViewMatrix( getModelViewMatrix() );
 }
 
 // if begin(); pushes first, then we need an end to pop
@@ -153,6 +154,9 @@ void ofCamera::end() {
 
 //----------------------------------------
 ofMatrix4x4 ofCamera::getProjectionMatrix(ofRectangle viewport) const {
+	// autocalculate near/far clip planes if not set by user
+	const_cast<ofCamera*>(this)->calcClipPlanes(viewport);
+
 	if(isOrtho) {
 		return ofMatrix4x4::newOrthoMatrix(0, viewport.width, 0, viewport.height, nearClip, farClip);
 	}else{

@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){	 
 	counter = 0;
-	vagRounded.loadFont("vag.ttf", 32);
+	vagRounded.load("vag.ttf", 32);
 	ofBackground(50,50,50);	
 }
 
@@ -149,6 +149,9 @@ void ofApp::keyReleased(int key){
 				break;
 			case OF_KEY_RIGHT_CONTROL:
 				sprintf(eventString, "keyReleased = (%i) %s", key, "RIGHT CONTROL");
+				break;
+			case OF_KEY_LEFT_ALT:
+				sprintf(eventString, "keyReleased = (%i) %s", key, "LEFT ALT");
 				break;
 			case OF_KEY_RIGHT_ALT:
 				sprintf(eventString, "keyReleased = (%i) %s", key, "RIGHT ALT");

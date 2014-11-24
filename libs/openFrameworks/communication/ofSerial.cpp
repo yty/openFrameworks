@@ -378,13 +378,8 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 
 	    return true;
 	//---------------------------------------------
-    #endif
+    #elif defined( TARGET_WIN32 )
     //---------------------------------------------
-
-
-    //---------------------------------------------
-	#ifdef TARGET_WIN32
-	//---------------------------------------------
 
 	char pn[sizeof(portName)];
 	int num;
@@ -452,6 +447,10 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 
 	bInited = true;
 	return true;
+
+	#else
+		ofLogError("ofSerial")<< "not implemented in this platform";
+		return false;
 	//---------------------------------------------
 	#endif
 	//---------------------------------------------
@@ -516,17 +515,16 @@ int ofSerial::readBytes(unsigned char * buffer, int length){
 			return OF_SERIAL_ERROR;
 		}
 		return nRead;
-    #endif
-    //---------------------------------------------
-
-    //---------------------------------------------
-	#ifdef TARGET_WIN32
+    #elif defined( TARGET_WIN32 )
 		DWORD nRead = 0;
 		if (!ReadFile(hComm,buffer,length,&nRead,0)){
 			ofLogError("ofSerial") << "readBytes(): couldn't read from port";
 			return OF_SERIAL_ERROR;
 		}
 		return (int)nRead;
+	#else
+		ofLogError("ofSerial") << "not defined in this platform";
+		return -1;
 	#endif
 	//---------------------------------------------
 }
@@ -540,13 +538,11 @@ bool ofSerial::writeByte(unsigned char singleByte){
 		return false;
 	}
 
-	unsigned char tmpByte[1];
-	tmpByte[0] = singleByte;
 
 	//---------------------------------------------
 	#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
 	    int numWritten = 0;
-	    numWritten = write(fd, tmpByte, 1);
+	    numWritten = write(fd, &singleByte, 1);
 		if(numWritten <= 0 ){
 			if ( errno == EAGAIN )
 				return 0;
@@ -557,13 +553,9 @@ bool ofSerial::writeByte(unsigned char singleByte){
 		ofLogVerbose("ofSerial") << "wrote byte";
 
 		return (numWritten > 0 ? true : false);
-    #endif
-    //---------------------------------------------
-
-    //---------------------------------------------
-	#ifdef TARGET_WIN32
+    #elif defined( TARGET_WIN32 )
 		DWORD written = 0;
-		if(!WriteFile(hComm, tmpByte, 1, &written,0)){
+		if(!WriteFile(hComm, &singleByte, 1, &written,0)){
 			 ofLogError("ofSerial") << "writeByte(): couldn't write to port";
 			 //return OF_SERIAL_ERROR; // this looks wrong.
 			 return false;
@@ -572,6 +564,9 @@ bool ofSerial::writeByte(unsigned char singleByte){
 		ofLogVerbose("ofSerial") << "wrote byte";
 
 		return ((int)written > 0 ? true : false);
+	#else
+		ofLogError("ofSerial") << "not defined in this platform";
+		return false;
 	#endif
 	//---------------------------------------------
 
@@ -585,34 +580,34 @@ int ofSerial::readByte(){
 		return OF_SERIAL_ERROR;
 	}
 
-	unsigned char tmpByte[1];
-	memset(tmpByte, 0, 1);
+	unsigned char tmpByte = 0;
 
 	//---------------------------------------------
 	#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
-		int nRead = read(fd, tmpByte, 1);
+		int nRead = read(fd, &tmpByte, 1);
 		if(nRead < 0){
-			if ( errno == EAGAIN )
+			if ( errno == EAGAIN ){
 				return OF_SERIAL_NO_DATA;
+			}
 			ofLogError("ofSerial") << "readByte(): couldn't read from port: " << errno << " " << strerror(errno);
             return OF_SERIAL_ERROR;
 		}
-		if(nRead == 0)
+		if(nRead == 0){
 			return OF_SERIAL_NO_DATA;
-    #endif
-    //---------------------------------------------
-
-    //---------------------------------------------
-	#ifdef TARGET_WIN32
+		}
+    #elif defined( TARGET_WIN32 )
 		DWORD nRead;
-		if (!ReadFile(hComm, tmpByte, 1, &nRead, 0)){
+		if (!ReadFile(hComm, &tmpByte, 1, &nRead, 0)){
 			ofLogError("ofSerial") << "readByte(): couldn't read from port";
 			return OF_SERIAL_ERROR;
 		}
+	#else
+		ofLogError("ofSerial") << "not defined in this platform";
+		return OF_SERIAL_ERROR;
 	#endif
 	//---------------------------------------------
 
-	return (int)(tmpByte[0]);
+	return tmpByte;
 }
 
 
@@ -624,21 +619,18 @@ void ofSerial::flush(bool flushIn, bool flushOut){
 		return;
 	}
 
-	int flushType = 0;
 
 	//---------------------------------------------
 	#if defined( TARGET_OSX ) || defined( TARGET_LINUX )
+		int flushType = 0;
 		if( flushIn && flushOut) flushType = TCIOFLUSH;
 		else if(flushIn) flushType = TCIFLUSH;
 		else if(flushOut) flushType = TCOFLUSH;
 		else return;
 
 		tcflush(fd, flushType);
-    #endif
-    //---------------------------------------------
-
-    //---------------------------------------------
-	#ifdef TARGET_WIN32
+    #elif defined( TARGET_WIN32 )
+		int flushType = 0;
 		if( flushIn && flushOut) flushType = PURGE_TXCLEAR | PURGE_RXCLEAR;
 		else if(flushIn) flushType = PURGE_RXCLEAR;
 		else if(flushOut) flushType = PURGE_TXCLEAR;
