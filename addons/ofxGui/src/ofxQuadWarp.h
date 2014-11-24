@@ -21,6 +21,9 @@ public:
     virtual bool mouseDragged(ofMouseEventArgs & args);
     virtual bool mouseReleased(ofMouseEventArgs & args);
 
+	void keyPressed(int key);
+	void keyReleased(int key);
+
 	template<class ListenerClass, typename ListenerMethod>
 	void addListener(ListenerClass * listener, ListenerMethod method){
 		label.addListener(listener,method);
@@ -33,7 +36,7 @@ public:
 
     ofAbstractParameter & getParameter();
 	void InitQuadPos(float w,float h);
-	void InitQuadPos(float w,float h,vector<ofPoint> &p);
+	void InitQuadPos(float w,float h,ofPoint &p1,ofPoint &p2,ofPoint &p3,ofPoint &p4);
 
 	ofVec3f * getDstQuadPos();
 	ofVec3f * getSrcQuadPos();
@@ -43,6 +46,7 @@ public:
     void minimizeAll();
     void maximizeAll();
 
+	int curMoveStep;
 	bool bGuiActive;
 	void fixSize(); //terry add
 
