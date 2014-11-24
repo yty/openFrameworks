@@ -74,5 +74,5 @@ private:
 	void appendParameter( ofxOscBundle & bundle, const ofAbstractParameter & parameter, string address);
 	void appendParameter( ofxOscMessage & msg, const ofAbstractParameter & parameter, string address);
 
-	UdpTransmitSocket* socket;
+ 	UdpTransmitSocket * socket;
 };

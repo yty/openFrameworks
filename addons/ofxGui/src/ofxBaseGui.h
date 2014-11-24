@@ -87,11 +87,11 @@ protected:
 	static bool fontLoaded;
 	static bool useTTF;
 #ifdef SONOVO_FONTSTASH
-	std::shared_ptr<ofBaseFileSerializer> serializer;
+	
 	static ofxFontStash unicodeFont;
 #endif
 
-	ofPtr<ofBaseFileSerializer> serializer;
+	std::shared_ptr<ofBaseFileSerializer> serializer;
 
 	static ofColor headerBackgroundColor;
 	static ofColor backgroundColor;
