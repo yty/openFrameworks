@@ -26,9 +26,18 @@ void ofApp::setup(){
 	gui.setup("UI界面");
 	gui.add(testContent0.setup("testContent0",image0));
 	gui.add(testDropDownList.setup("测试DropDownList",sizeArray,0));
-	gui.add(testContent1.setup("testContent1",image1));
+
 	gui.add(testQuadWarp.setup("image测试QuadWarp",camera.getTextureReference()));
 	gui.loadFromFile("settings.xml");
+
+	guiEx.setUseTTF(true);
+	guiEx.setup("test","test.xml",512,10);
+	testGroup.setup("testGroup");
+	testGroup1.setup("testGroup1");
+	testGroup1.add(testToggle.setup("testToggle",true));
+	testGroup.add(&testGroup1);
+	//testGroup.add(testContent1.setup("testContent1",image1));
+	guiEx.add(&testGroup);
 
 }
 
@@ -52,6 +61,7 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	gui.draw();
+	guiEx.draw();
 	if (ofxGetCurrentContent()!=NULL){
 		ofxGetCurrentContent()->draw(300,100);
 	}
