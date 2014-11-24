@@ -848,6 +848,8 @@ void ofDrawBezier(float x0, float y0, float z0, float x1, float y1, float z1, fl
 }
 
 //----------------------------------------------------------
+
+//----------------------------------------------------------
 void ofTriangle(const ofPoint & p1, const ofPoint & p2, const ofPoint & p3){
 	ofDrawTriangle(p1,p2,p3);
 }
