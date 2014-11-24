@@ -822,6 +822,11 @@ void ofMesh::load(string path){
 	for(;line != lines.end(); ++line){
 		lineNum++;
 		string lineStr = *line;
+
+		if(lineStr.length() <= 0){ // 2014.10.11 xiajia
+			continue;
+		}
+
 		if(lineStr.find("comment")==0 || lineStr.empty()){
 			continue;
 		}
