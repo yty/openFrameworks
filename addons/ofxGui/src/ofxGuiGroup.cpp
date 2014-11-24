@@ -440,3 +440,7 @@ void ofxGuiGroup::setPosition(ofPoint p){
 void ofxGuiGroup::setPosition(float x, float y){
 	setPosition(ofVec2f(x,y));
 }
+
+void ofxGuiGroup::add(ofParameter<ofRectangle> & parameter){
+	add(new ofxRectSlider_<ofRectangle>(parameter,b.width));
+}
