@@ -88,6 +88,7 @@ protected:
 	static bool fontLoaded;
 	static bool useTTF;
 #ifdef SONOVO_FONTSTASH
+	std::shared_ptr<ofBaseFileSerializer> serializer;
 	static ofxFontStash unicodeFont;
 #endif
 

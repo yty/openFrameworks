@@ -455,6 +455,10 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 	#else
 		ofLogError("ofSerial")<< "not implemented in this platform";
 		return false;
+
+	#else
+		ofLogError("ofSerial")<< "not implemented in this platform";
+		return false;
 	//---------------------------------------------
 	#endif
 	//---------------------------------------------

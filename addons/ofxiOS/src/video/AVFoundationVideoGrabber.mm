@@ -18,6 +18,9 @@
 #warning Target = iOS Simulator - The AVFoundationVideoGrabber will not function on the iOS Simulator
 #endif
 
+#define IS_IOS_7_OR_LATER    ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+#define IS_IOS_6_OR_LATER    ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0)
+
 @interface iOSVideoGrabber() <AVCaptureVideoDataOutputSampleBufferDelegate> {
 	AVCaptureDeviceInput		*captureInput;	
 	AVCaptureVideoDataOutput    *captureOutput;
