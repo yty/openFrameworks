@@ -26,10 +26,12 @@ ofxGuiGroup* ofxQuadWarp::setup(string quadWarpName, ofBaseDraws &_content, floa
 
 	name = quadWarpName;
 	this->content = &_content;
+	this->fixWidth = _fixwidth;
+
 	b.x = 0;
 	b.y = 0;
 
-	this->fixWidth = _fixwidth;
+	fixSize();
 
 	ofRegisterMouseEvents(this,OF_EVENT_ORDER_BEFORE_APP);
 
@@ -40,10 +42,14 @@ ofxGuiGroup* ofxQuadWarp::setup(string quadWarpName, ofBaseDraws &_content, floa
 	return &quadWarpGroup;
 }
 
+void ofxQuadWarp::fixSize(){
+	b.width  = fixWidth;
+	b.height = ((b.width * content->getHeight())/content->getWidth());
+}
 
 void ofxQuadWarp::render() {
 
-
+	fixSize();
 	ofColor c = ofGetStyle().color;
 	this->content->draw(b.x , b.y,b.width,b.height );
 
@@ -138,7 +144,7 @@ bool ofxQuadWarp::mouseReleased(ofMouseEventArgs & args){
 		}
 	}
 	lastMousePressTime = ofGetElapsedTimef();
-
+	bGuiActive = false; //terry add
 	return false;
 }
 
@@ -181,6 +187,32 @@ void ofxQuadWarp::InitQuadPos(float w,float h){
 	dstQuadPos[1].set("dstQuadPos1",ofVec3f(w,0));
 	dstQuadPos[2].set("dstQuadPos2",ofVec3f(w,h));
 	dstQuadPos[3].set("dstQuadPos3",ofVec3f(0,h));
+	
+	if(srcQuadPos == NULL){
+		srcQuadPos = new ofPoint[4];
+	}
+	srcQuadPos[0] = ofVec3f(0,0);
+	srcQuadPos[1] = ofVec3f(w,0);
+	srcQuadPos[2] = ofVec3f(w,h);
+	srcQuadPos[3] = ofVec3f(0,h);
+
+	ofLogNotice("ofxQuadWarp")<<"InitQuadPos()=>"<<w<<","<<h;
+}
+
+void ofxQuadWarp::InitQuadPos(float w,float h,vector<ofPoint> &p){
+	b.width  = fixWidth;
+	b.height = fixWidth * (h/w);// * ( content->getWidth()/initWidth) ;
+	
+	this->width = b.width/w;
+	this->height = b.height/h;
+	
+	if(dstQuadPos == NULL){
+		dstQuadPos = new ofParameter<ofVec3f>[4];
+	}
+	dstQuadPos[0].set("dstQuadPos0",p[0]);
+	dstQuadPos[1].set("dstQuadPos1",p[1]);
+	dstQuadPos[2].set("dstQuadPos2",p[2]);
+	dstQuadPos[3].set("dstQuadPos3",p[3]);
 	
 	if(srcQuadPos == NULL){
 		srcQuadPos = new ofPoint[4];

@@ -33,6 +33,7 @@ public:
 
     ofAbstractParameter & getParameter();
 	void InitQuadPos(float w,float h);
+	void InitQuadPos(float w,float h,vector<ofPoint> &p);
 
 	ofVec3f * getDstQuadPos();
 	ofVec3f * getSrcQuadPos();
@@ -41,6 +42,9 @@ public:
     void maximize();
     void minimizeAll();
     void maximizeAll();
+
+	bool bGuiActive;
+	void fixSize(); //terry add
 
 protected:
 	float fixWidth; //terry add
@@ -52,7 +56,7 @@ protected:
     ofVboMesh textMesh;
 	string name;
 
-	bool bGuiActive;
+	
 	vector<bool> bCircle;
 	ofRectangle rectCircumscribe;
 	float lastMousePressTime;
