@@ -16,8 +16,6 @@ void ofApp::setup(){
 	sizeArray.push_back("640x480");
 	sizeArray.push_back("200x480");
 
-	testDropDownList.addListener(this,&ofApp::valueChange);
-
 	ofxGuiSetFont("Microsoft YaHei",16);
 	ofxGuiSetDefaultWidth(300);
 	ofxGuiSetDefaultHeight(30);
@@ -27,7 +25,13 @@ void ofApp::setup(){
 	gui.add(testContent0.setup("testContent0",image0));
 	gui.add(testDropDownList.setup("测试DropDownList",sizeArray,0));
 
+	vector<string> temp = ofSplitString(testDropDownList.getItemName(testDropDownList.getCurItemId()),"x");
+	camera.setup(ofToInt(temp[0]),ofToInt(temp[1]));
+
 	gui.add(testQuadWarp.setup("image测试QuadWarp",camera.getTextureReference()));
+
+	testDropDownList.addListener(this,&ofApp::valueChange);//换了位置
+
 	gui.loadFromFile("settings.xml");
 
 	guiEx.setUseTTF(true);
@@ -48,6 +52,7 @@ void ofApp::valueChange(int & value){
 	}
 	camera.initGrabber(ofToInt(temp[0]),ofToInt(temp[1]));
 	testQuadWarp.InitQuadPos(camera.getWidth(),camera.getHeight());
+	cout<<"valueChange"<<endl;
 }
 
 void ofApp::exit(){
