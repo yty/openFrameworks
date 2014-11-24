@@ -57,3 +57,28 @@ protected:
 typedef ofxColorSlider_<unsigned char> ofxColorSlider;
 typedef ofxColorSlider_<unsigned short> ofxShortColorSlider;
 typedef ofxColorSlider_<float> ofxFloatColorSlider;
+
+template<class RectType>
+class ofxRectSlider_ : public ofxGuiGroup {
+public:
+    ofxRectSlider_(){
+        sliderChanging = false;
+    };
+    ofxRectSlider_(ofParameter<RectType> value, float width = defaultWidth, float height = defaultHeight);
+
+    ofxRectSlider_ * setup(ofParameter<RectType> value, float width = defaultWidth, float height = defaultHeight);
+    ofxRectSlider_ * setup(string controlName, const RectType & value, const RectType & min, const RectType & max, float width = defaultWidth, float height = defaultHeight);
+
+    ofAbstractParameter & getParameter();
+
+    RectType operator=(const RectType & v);
+	operator const RectType & ();
+	const RectType * operator->();
+protected:
+    void changeSlider(const void * parameter, float & value);
+    void changeValue(RectType & value);
+    ofParameter<RectType> value;
+    bool sliderChanging;
+};
+
+typedef ofxRectSlider_<ofRectangle> ofxRectangleSlider;
