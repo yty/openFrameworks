@@ -57,10 +57,11 @@ template<typename PixelType>
 class ofColor_{
 public:
     /// \brief Construct an ofColor_ instance.
-    ofColor_<PixelType>();
-
-    /// \brief Destroy an ofColor_ instance.
-    ~ofColor_<PixelType>();
+    ofColor_<PixelType>():
+        r(limit()),
+        g(limit()),
+        b(limit()),
+        a(limit()) {};
 
     /// \brief Construct an ofColor_ by using channel values.
     ///
@@ -76,10 +77,6 @@ public:
                         float green,
                         float blue,
                         float alpha = limit());
-
-    /// \brief Construct an ofColor_ from an existing ofColor_.
-    /// \param color The ofColor_ to copy.
-    ofColor_<PixelType>(const ofColor_<PixelType>& color);
 
     /// \brief Construct an ofColor_ from an existing ofColor_.
     ///
@@ -413,15 +410,6 @@ public:
     /// R, G, B and A components are set to the the values of the assigned
     /// color.
     ///
-    /// \param color The color to assign.
-    /// \returns A reference to itself.
-    ofColor_<PixelType>& operator = (const ofColor_<PixelType>& color);
-
-    /// \brief Assign a color using an existing color.
-    ///
-    /// R, G, B and A components are set to the the values of the assigned
-    /// color.
-    ///
     /// \warning Depending on the PixelType and SrcType used, color precision
     ///     may be lost when converting a higher precision to a lower precision
     ///     representation.
@@ -532,25 +520,25 @@ public:
     friend istream& operator >> (istream& is, ofColor_<PixelType>& color) {
         if(sizeof(PixelType) == 1) {
             int component;
-            is >> component;
+            is >> std::skipws >> component;
             color.r = component;
-            is.ignore(2);
-            is >> component;
+            is.ignore(1);
+            is >> std::skipws >> component;
             color.g = component;
-            is.ignore(2);
-            is >> component;
+            is.ignore(1);
+            is >> std::skipws >> component;
             color.b = component;
-            is.ignore(2);
-            is >> component;
+            is.ignore(1);
+            is >> std::skipws >> component;
             color.a = component;
         }else{
-            is >> color.r;
-            is.ignore(2);
-            is >> color.g;
-            is.ignore(2);
-            is >> color.b;
-            is.ignore(2);
-            is >> color.a;
+            is >> std::skipws >> color.r;
+            is.ignore(1);
+            is >> std::skipws >> color.g;
+            is.ignore(1);
+            is >> std::skipws >> color.b;
+            is.ignore(1);
+            is >> std::skipws >> color.a;
         }
         return is;
     }

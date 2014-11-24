@@ -43,7 +43,8 @@ static ofxiOSEAGLView * _instanceRef = nil;
                       andDepth:ofAppiOSWindow::getInstance()->isDepthBufferEnabled()
                          andAA:ofAppiOSWindow::getInstance()->isAntiAliasingEnabled()
                  andNumSamples:ofAppiOSWindow::getInstance()->getAntiAliasingSampleCount()
-                     andRetina:ofAppiOSWindow::getInstance()->isRetinaEnabled()];
+                     andRetina:ofAppiOSWindow::getInstance()->isRetinaEnabled()
+                andRetinaScale:ofAppiOSWindow::getInstance()->getRetinaScale()];
     
     if(self) {
         
@@ -51,12 +52,12 @@ static ofxiOSEAGLView * _instanceRef = nil;
         
         if(rendererVersion == ESRendererVersion_20) {
             if(ofAppiOSWindow::getInstance()->isRendererES2() == false) {
-                ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofGLProgrammableRenderer(false)));
+                ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLProgrammableRenderer(false)));
             }
-            ((ofGLProgrammableRenderer *)ofGetCurrentRenderer().get())->setup();
+            ofGetGLProgrammableRenderer()->setup("120");
         } else if(rendererVersion == ESRendererVersion_11) {
             if(ofAppiOSWindow::getInstance()->isRendererES1() == false) {
-                ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofGLRenderer(false)));
+                ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLRenderer(false)));
             }
         }
         
@@ -69,7 +70,7 @@ static ofxiOSEAGLView * _instanceRef = nil;
         [self updateDimensions];
         
         if(app != ofGetAppPtr()) {              // check if already running.
-            ofRunApp(ofPtr<ofBaseApp>(app));    // this case occurs when app is created in main().
+            ofRunApp(shared_ptr<ofBaseApp>(app));    // this case occurs when app is created in main().
         }
         ofRegisterTouchEvents(app);
         ofxiOSAlerts.addListener(app);
@@ -77,7 +78,6 @@ static ofxiOSEAGLView * _instanceRef = nil;
         ofDisableTextureEdgeHack();
 
         ofGLReadyCallback();
-        ofReloadGLResources();
         
         bInit = YES;
     }
@@ -88,12 +88,7 @@ static ofxiOSEAGLView * _instanceRef = nil;
 - (void)setup {
     
     ofNotifySetup();
-    
-    glClearColor(ofBgColorPtr()[0], 
-                 ofBgColorPtr()[1], 
-                 ofBgColorPtr()[2], 
-                 ofBgColorPtr()[3]); // clear background.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ofGetCurrentRenderer()->clear();
 }
 
 - (void)destroy {
@@ -130,7 +125,7 @@ static ofxiOSEAGLView * _instanceRef = nil;
     
     ofUnregisterTouchEvents(app);
     ofxiOSAlerts.removeListener(app);
-    ofSetAppPtr(ofPtr<ofBaseApp>((app = NULL)));
+    ofSetAppPtr(shared_ptr<ofBaseApp>((app = NULL)));
     
     _instanceRef = nil;
     
@@ -177,20 +172,7 @@ static ofxiOSEAGLView * _instanceRef = nil;
     [self lockGL];
     [self startRender];
     
-    ofGLProgrammableRenderer * es2Renderer = NULL;
-    if(ofIsGLProgrammableRenderer()) {
-        es2Renderer = (ofGLProgrammableRenderer *)(ofGetCurrentRenderer().get());
-        es2Renderer->startRender();
-    }
-
-    ofViewport(ofRectangle(0, 0, ofGetWidth(), ofGetHeight()));
-    
-    float * bgPtr = ofBgColorPtr();
-    bool bClearAuto = ofbClearBg();
-    if(bClearAuto == true) {
-        glClearColor(bgPtr[0], bgPtr[1], bgPtr[2], bgPtr[3]);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
+    ofGetCurrentRenderer()->startRender();
     
     if(ofAppiOSWindow::getInstance()->isSetupScreenEnabled()) {
         ofSetupScreen();
@@ -202,9 +184,7 @@ static ofxiOSEAGLView * _instanceRef = nil;
     
     //------------------------------------------
     
-    if(es2Renderer != NULL) {
-        es2Renderer->finishRender();
-    }
+    ofGetCurrentRenderer()->finishRender();
     
     [self finishRender];
     [self unlockGL];

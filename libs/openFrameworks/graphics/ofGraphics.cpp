@@ -7,12 +7,12 @@
 #include "ofRendererCollection.h"
 #include "ofGLProgrammableRenderer.h"
 #include "ofGLRenderer.h"
-#if !defined(TARGET_OF_IOS) && !defined(TARGET_ANDROID)
+#if !defined(TARGET_OF_IOS) && !defined(TARGET_ANDROID) && !defined(TARGET_EMSCRIPTEN)
 #include "ofCairoRenderer.h"
 #endif
 
 
-#ifndef TARGET_LINUX_ARM
+#if !defined(TARGET_LINUX_ARM) && !defined(TARGET_EMSCRIPTEN)
 	#ifdef TARGET_OSX
 		#include <OpenGL/glu.h>
 	#endif
@@ -53,29 +53,38 @@ static deque <ofStyle> styleHistory;
 static deque <ofRectangle> viewportHistory;
 
 static ofPath shape;
-static ofPtr<ofBaseRenderer> renderer;
 static ofVboMesh gradientMesh;
 
+shared_ptr<ofBaseRenderer> & ofGetCurrentRenderer(){
+	static shared_ptr<ofBaseRenderer> currentRenderer;
+	return currentRenderer;
+}
 
 void ofSetCurrentRenderer(const string & rendererType,bool setDefaults){
 	if(rendererType==ofGLProgrammableRenderer::TYPE){
-		ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofGLProgrammableRenderer),setDefaults);
+		ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLProgrammableRenderer(ofGetWindowPtr())),setDefaults);
+#ifndef TARGET_PROGRAMMABLE_GL
 	}else if(rendererType==ofGLRenderer::TYPE){
-		ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofGLRenderer),setDefaults);
-#if !defined(TARGET_OF_IOS) && !defined(TARGET_ANDROID)
+		ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLRenderer(ofGetWindowPtr())),setDefaults);
+#endif
+#if !defined(TARGET_OF_IOS) && !defined(TARGET_ANDROID) && !defined(TARGET_EMSCRIPTEN)
 	}else if(rendererType==ofCairoRenderer::TYPE){
-		ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofCairoRenderer),setDefaults);
+		ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofCairoRenderer),setDefaults);
 #endif
 	}else{
 		ofLogError("ofGraphics") << "ofSetCurrentRenderer(): unknown renderer type " << rendererType << ", setting an ofGLRenderer";
 		ofLogError("ofGraphics") << "if you want to use a custom renderer, pass an ofPtr to a new instance of it";
-		ofSetCurrentRenderer(ofPtr<ofBaseRenderer>(new ofGLRenderer),setDefaults);
+#ifndef TARGET_PROGRAMMABLE_GL
+		ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLRenderer(ofGetWindowPtr())),setDefaults);
+#else
+		ofSetCurrentRenderer(shared_ptr<ofBaseRenderer>(new ofGLProgrammableRenderer(ofGetWindowPtr())),setDefaults);
+#endif
 	}
 }
 
-void ofSetCurrentRenderer(ofPtr<ofBaseRenderer> renderer_,bool setDefaults){
-	renderer = renderer_;
-	if(renderer->rendersPathPrimitives()){
+void ofSetCurrentRenderer(shared_ptr<ofBaseRenderer> renderer_,bool setDefaults){
+	ofGetCurrentRenderer() = renderer_;
+	if(ofGetCurrentRenderer()->rendersPathPrimitives()){
 		shape.setMode(ofPath::COMMANDS);
 	}else{
 		shape.setMode(ofPath::POLYLINES);
@@ -84,14 +93,10 @@ void ofSetCurrentRenderer(ofPtr<ofBaseRenderer> renderer_,bool setDefaults){
 	shape.setUseShapeColor(false);
 
 	if(setDefaults){
-		renderer->setupGraphicDefaults();
+		ofGetCurrentRenderer()->setupGraphicDefaults();
 		ofSetStyle(currentStyle);
-		ofBackground(currentStyle.bgColor);
+		ofSetBackgroundColor(currentStyle.bgColor);
 	}
-}
-
-ofPtr<ofBaseRenderer> & ofGetCurrentRenderer(){
-	return renderer;
 }
 
 #if !defined(TARGET_ANDROID) && !defined(TARGET_OF_IOS)
@@ -101,30 +106,13 @@ ofPtr<ofBaseRenderer> & ofGetCurrentRenderer(){
 #include "ofCairoRenderer.h"
 #include "ofGLRenderer.h"
 
-static ofPtr<ofCairoRenderer> cairoScreenshot;
-static ofPtr<ofBaseRenderer> storedRenderer;
-static ofPtr<ofRendererCollection> rendererCollection;
+static shared_ptr<ofCairoRenderer> cairoScreenshot;
+static shared_ptr<ofBaseRenderer> storedRenderer;
+static shared_ptr<ofRendererCollection> rendererCollection;
 static bool bScreenShotStarted = false;
 
-//-----------------------------------------------------------------------------------
-void ofBeginSaveScreenAsPDF(string filename, bool bMultipage, bool b3D, ofRectangle viewport){
-	if( bScreenShotStarted )ofEndSaveScreenAsPDF();
-	
-	storedRenderer = ofGetCurrentRenderer();
-	
-	cairoScreenshot = ofPtr<ofCairoRenderer>(new ofCairoRenderer);
-	cairoScreenshot->setup(filename, ofCairoRenderer::PDF, bMultipage, b3D, viewport); 		
 
-	rendererCollection = ofPtr<ofRendererCollection>(new ofRendererCollection);
-	rendererCollection->renderers.push_back(ofGetGLRenderer());
-	rendererCollection->renderers.push_back(cairoScreenshot);
-	
-	ofSetCurrentRenderer(cairoScreenshot, true);
-	bScreenShotStarted = true;
-}
-
-//-----------------------------------------------------------------------------------
-void ofEndSaveScreenAsPDF(){
+static void ofEndSaveScreen(){
 	if( bScreenShotStarted ){
 
 		if( cairoScreenshot ){
@@ -136,9 +124,46 @@ void ofEndSaveScreenAsPDF(){
 			ofSetCurrentRenderer(storedRenderer,true);
 			storedRenderer.reset();
 		}
-		
+
 		bScreenShotStarted = false;
 	}
+
+}
+
+static void ofBeginSaveScreen(string filename, ofCairoRenderer::Type type, bool bMultipage, bool b3D, ofRectangle viewport){
+	if( bScreenShotStarted ) ofEndSaveScreen();
+	
+	storedRenderer = ofGetCurrentRenderer();
+	
+	cairoScreenshot = shared_ptr<ofCairoRenderer>(new ofCairoRenderer);
+	cairoScreenshot->setup(filename, type, bMultipage, b3D, viewport);
+
+	rendererCollection = shared_ptr<ofRendererCollection>(new ofRendererCollection);
+	rendererCollection->renderers.push_back(ofGetGLRenderer());
+	rendererCollection->renderers.push_back(cairoScreenshot);
+	
+	ofSetCurrentRenderer(rendererCollection, true);
+	bScreenShotStarted = true;
+}
+
+//-----------------------------------------------------------------------------------
+void ofBeginSaveScreenAsPDF(string filename, bool bMultipage, bool b3D, ofRectangle viewport){
+	ofBeginSaveScreen(filename, ofCairoRenderer::PDF, bMultipage, b3D, viewport);
+}
+
+//-----------------------------------------------------------------------------------
+void ofEndSaveScreenAsPDF(){
+	ofEndSaveScreen();
+}
+
+//-----------------------------------------------------------------------------------
+void ofBeginSaveScreenAsSVG(string filename, bool bMultipage, bool b3D, ofRectangle viewport){
+	ofBeginSaveScreen(filename, ofCairoRenderer::SVG, bMultipage, b3D, viewport);
+}
+
+//-----------------------------------------------------------------------------------
+void ofEndSaveScreenAsSVG(){
+	ofEndSaveScreen();
 }
 
 #endif
@@ -150,42 +175,42 @@ void ofEndSaveScreenAsPDF(){
 
 //----------------------------------------------------------
 void ofPushView(){
-	renderer->pushView();
+	ofGetCurrentRenderer()->pushView();
 }
 
 //----------------------------------------------------------
 void ofPopView(){
-	renderer->popView();
+	ofGetCurrentRenderer()->popView();
 }
 
 //----------------------------------------------------------
 void ofViewport(ofRectangle viewport){
-	renderer->viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+	ofGetCurrentRenderer()->viewport(viewport.x, viewport.y, viewport.width, viewport.height);
 }
 
 //----------------------------------------------------------
 void ofViewport(float x, float y, float width, float height, bool invertY){
-	renderer->viewport(x,y,width,height,invertY);
+	ofGetCurrentRenderer()->viewport(x,y,width,height,invertY);
 }
 
 //----------------------------------------------------------
 ofRectangle ofGetCurrentViewport(){
-	return renderer->getCurrentViewport();
+	return ofGetCurrentRenderer()->getCurrentViewport();
 }
 
 //----------------------------------------------------------
 ofRectangle ofGetNativeViewport(){
-	return renderer->getNativeViewport();
+	return ofGetCurrentRenderer()->getNativeViewport();
 }
 
 //----------------------------------------------------------
 int ofGetViewportWidth(){
-	return renderer->getViewportWidth();
+	return ofGetCurrentRenderer()->getViewportWidth();
 }
 
 //----------------------------------------------------------
 int ofGetViewportHeight(){
-	return renderer->getViewportHeight();
+	return ofGetCurrentRenderer()->getViewportHeight();
 }
 
 //----------------------------------------------------------
@@ -206,17 +231,17 @@ int ofOrientationToDegrees(ofOrientation orientation){
 
 //----------------------------------------------------------
 bool ofIsVFlipped(){
-	return renderer->isVFlipped();
+	return ofGetCurrentRenderer()->isVFlipped();
 }
 
 //----------------------------------------------------------
 void ofSetCoordHandedness(ofHandednessType handedness){
-	renderer->setCoordHandedness(handedness);
+	ofGetCurrentRenderer()->setCoordHandedness(handedness);
 }
 
 //----------------------------------------------------------
 ofHandednessType ofGetCoordHandedness(){
-	return renderer->getCoordHandedness();
+	return ofGetCurrentRenderer()->getCoordHandedness();
 }
 
 
@@ -229,7 +254,7 @@ void ofSetupScreenPerspective(float width, float height, ofOrientation orientati
 		ofLogError("ofGraphics") << "set them with ofSetOrientation() before calling ofSetupScreenPerspective()";
 		setupScreenDeprecated = true;
 	}
-	renderer->setupScreenPerspective(width,height,fov,nearDist,farDist);
+	ofGetCurrentRenderer()->setupScreenPerspective(width,height,fov,nearDist,farDist);
 }
 
 //----------------------------------------------------------
@@ -239,29 +264,29 @@ void ofSetupScreenOrtho(float width, float height, ofOrientation orientation, bo
 		ofLogError("ofGraphics") << "set them with ofSetOrientation() before calling ofSetupScreenPerspective()";
 		setupScreenDeprecated = true;
 	}
-	renderer->setupScreenOrtho(width,height,nearDist,farDist);
+	ofGetCurrentRenderer()->setupScreenOrtho(width,height,nearDist,farDist);
 }
 
 //----------------------------------------------------------
 void ofSetupScreenPerspective(float width, float height, float fov, float nearDist, float farDist){
-	renderer->setupScreenPerspective(width,height, fov,nearDist,farDist);
+	ofGetCurrentRenderer()->setupScreenPerspective(width,height, fov,nearDist,farDist);
 }
 
 //----------------------------------------------------------
 void ofSetupScreenOrtho(float width, float height, float nearDist, float farDist){
-	renderer->setupScreenOrtho(width,height,nearDist,farDist);
+	ofGetCurrentRenderer()->setupScreenOrtho(width,height,nearDist,farDist);
 }
 
 //----------------------------------------------------------
 //Resets openGL parameters back to OF defaults
 void ofSetupGraphicDefaults(){
-	renderer->setupGraphicDefaults();
+	ofGetCurrentRenderer()->setupGraphicDefaults();
 	ofSetStyle(ofStyle());
 }
 
 //----------------------------------------------------------
 void ofSetupScreen(){
-	renderer->setupScreen();	// assume defaults
+	ofGetCurrentRenderer()->setupScreen();	// assume defaults
 }
 
 
@@ -269,12 +294,12 @@ void ofSetupScreen(){
 //our openGL wrappers
 //----------------------------------------------------------
 void ofPushMatrix(){
-	renderer->pushMatrix();
+	ofGetCurrentRenderer()->pushMatrix();
 }
 
 //----------------------------------------------------------
 void ofPopMatrix(){
-	renderer->popMatrix();
+	ofGetCurrentRenderer()->popMatrix();
 }
 
 //----------------------------------------------------------
@@ -291,84 +316,101 @@ void ofPopMatrix(){
  *	@param	matrixMode_  Which matrix mode to query
  */
 ofMatrix4x4 ofGetCurrentMatrix(ofMatrixMode matrixMode_){
-	return renderer->getCurrentMatrix(matrixMode_);
+	return ofGetCurrentRenderer()->getCurrentMatrix(matrixMode_);
 }
 
 //----------------------------------------------------------
 ofMatrix4x4 ofGetCurrentOrientationMatrix(){
-	return renderer->getCurrentOrientationMatrix();
+	return ofGetCurrentRenderer()->getCurrentOrientationMatrix();
+}
+
+//----------------------------------------------------------
+ofMatrix4x4 ofGetCurrentNormalMatrix(){
+	return ofGetCurrentRenderer()->getCurrentNormalMatrix();
 }
 
 //----------------------------------------------------------
 void ofTranslate(const ofPoint& p){
-	renderer->translate(p);
+	ofGetCurrentRenderer()->translate(p);
 }
 
 
 //----------------------------------------------------------
 void ofTranslate(float x, float y, float z){
-	renderer->translate(x, y, z);
+	ofGetCurrentRenderer()->translate(x, y, z);
 }
 
 //----------------------------------------------------------
 void ofScale(float xAmnt, float yAmnt, float zAmnt){
-	renderer->scale(xAmnt, yAmnt, zAmnt);
+	ofGetCurrentRenderer()->scale(xAmnt, yAmnt, zAmnt);
 }
 
 //----------------------------------------------------------
 void ofRotate(float degrees, float vecX, float vecY, float vecZ){
-	renderer->rotate(degrees, vecX, vecY, vecZ);
+	ofGetCurrentRenderer()->rotate(degrees, vecX, vecY, vecZ);
 }
 
 //----------------------------------------------------------
 void ofRotateX(float degrees){
-	renderer->rotateX(degrees);
+	ofGetCurrentRenderer()->rotateX(degrees);
 }
 
 //----------------------------------------------------------
 void ofRotateY(float degrees){
-	renderer->rotateY(degrees);
+	ofGetCurrentRenderer()->rotateY(degrees);
 }
 
 //----------------------------------------------------------
 void ofRotateZ(float degrees){
-	renderer->rotateZ(degrees);
+	ofGetCurrentRenderer()->rotateZ(degrees);
 }
 
 //same as ofRotateZ
 //----------------------------------------------------------
 void ofRotate(float degrees){
-	renderer->rotate(degrees);
+	ofGetCurrentRenderer()->rotate(degrees);
 }
 
 //----------------------------------------------------------
 void ofLoadIdentityMatrix (void){
-	renderer->loadIdentityMatrix();
+	ofGetCurrentRenderer()->loadIdentityMatrix();
 }
 
 //----------------------------------------------------------
 void ofLoadMatrix (const ofMatrix4x4 & m){
-	renderer->loadMatrix(m);
+	ofGetCurrentRenderer()->loadMatrix(m);
 }
 
 //----------------------------------------------------------
 void ofLoadMatrix (const float *m){
-	renderer->loadMatrix(m);
+	ofGetCurrentRenderer()->loadMatrix(m);
 }
 
 //----------------------------------------------------------
 void ofMultMatrix (const ofMatrix4x4 & m){
-	renderer->multMatrix(m);
+	ofGetCurrentRenderer()->multMatrix(m);
 }
 
 //----------------------------------------------------------
 void ofMultMatrix (const float *m){
-	renderer->multMatrix(m);
+	ofGetCurrentRenderer()->multMatrix(m);
 }
 
 //----------------------------------------------------------
 void ofSetMatrixMode(ofMatrixMode matrixMode){
-	renderer->matrixMode(matrixMode);
+	ofGetCurrentRenderer()->matrixMode(matrixMode);
+}
+
+void ofLoadViewMatrix(const ofMatrix4x4 & m){
+	ofGetCurrentRenderer()->loadViewMatrix(m);
+}
+
+void ofMultViewMatrix(const ofMatrix4x4 & m){
+	ofGetCurrentRenderer()->multViewMatrix(m);
+}
+
+ofMatrix4x4 ofGetCurrentViewMatrix(){
+	return ofGetCurrentRenderer()->getCurrentViewMatrix();
 }
 
 // end transformation matrix related functions
@@ -380,42 +422,46 @@ void ofSetMatrixMode(ofMatrixMode matrixMode){
 
 //----------------------------------------------------------
 void ofClear(float r, float g, float b, float a){
-	renderer->clear(r,g,b,a);
+	ofGetCurrentRenderer()->clear(r,g,b,a);
 }
 
 //----------------------------------------------------------
 void ofClear(float brightness, float a){
-	renderer->clear(brightness, brightness, brightness, a);
+	ofGetCurrentRenderer()->clear(brightness, brightness, brightness, a);
 }
 
 //----------------------------------------------------------
 void ofClear(const ofColor & c){
-	renderer->clear(c.r, c.g, c.b, c.a);
+	ofGetCurrentRenderer()->clear(c.r, c.g, c.b, c.a);
 }
 
 //----------------------------------------------------------
 void ofClearAlpha(){
-	renderer->clearAlpha();
+	ofGetCurrentRenderer()->clearAlpha();
 }	
 
 //----------------------------------------------------------
 void ofSetBackgroundAuto(bool bAuto){
-	renderer->setBackgroundAuto(bAuto);
+	ofGetCurrentRenderer()->setBackgroundAuto(bAuto);
+}
+
+bool ofGetBackgroundAuto(){
+	return ofGetCurrentRenderer()->getBackgroundAuto();
 }
 
 //----------------------------------------------------------
 bool ofbClearBg(){
-	return renderer->bClearBg();
-}
-
-//----------------------------------------------------------
-float * ofBgColorPtr(){
-	return &renderer->getBgColor().r;
+	return ofGetBackgroundAuto();
 }
 
 //----------------------------------------------------------
 ofColor ofGetBackground(){
-	return ofColor(renderer->getBgColor());
+	return ofGetCurrentRenderer()->getBackgroundColor();
+}
+
+//----------------------------------------------------------
+ofColor ofGetBackgroundColor(){
+	return ofGetCurrentRenderer()->getBackgroundColor();
 }
 
 //----------------------------------------------------------
@@ -436,7 +482,7 @@ void ofBackgroundHex(int hexColor, int alpha){
 //----------------------------------------------------------
 void ofBackground(int r, int g, int b, int a){
 	currentStyle.bgColor.set(r,g,b,a);
-	renderer->background(r,g,b,a);
+	ofGetCurrentRenderer()->background(r,g,b,a);
 }
 
 //----------------------------------------------------------
@@ -444,10 +490,12 @@ void ofBackgroundGradient(const ofColor& start, const ofColor& end, ofGradientMo
 	float w = ofGetWidth(), h = ofGetHeight();
 	gradientMesh.clear();
 	gradientMesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-#ifdef TARGET_OPENGLES
-	if(ofIsGLProgrammableRenderer()) gradientMesh.setUsage(GL_STREAM_DRAW);
-#else
-	gradientMesh.setUsage(GL_STREAM_DRAW);
+#ifndef TARGET_EMSCRIPTEN
+	#ifdef TARGET_OPENGLES
+		if(ofIsGLProgrammableRenderer()) gradientMesh.setUsage(GL_STREAM_DRAW);
+	#else
+		gradientMesh.setUsage(GL_STREAM_DRAW);
+	#endif
 #endif
 	if(mode == OF_GRADIENT_CIRCULAR) {
 		// this could be optimized by building a single mesh once, then copying
@@ -518,6 +566,7 @@ void ofSetBackgroundColorHex(int hexColor, int alpha){
 //----------------------------------------------------------
 void ofSetBackgroundColor(int r, int g, int b, int a){
 	currentStyle.bgColor.set(r,g,b,a);
+	ofGetCurrentRenderer()->setBackgroundColor(currentStyle.bgColor);
 }
 
 // end background functions
@@ -531,7 +580,7 @@ void ofSetBackgroundColor(int r, int g, int b, int a){
 
 //----------------------------------------------------------
 void  ofSetRectMode(ofRectMode mode){
-	renderer->setRectMode(mode);
+	ofGetCurrentRenderer()->setRectMode(mode);
 	currentStyle.rectMode = mode;
 }
 
@@ -544,7 +593,7 @@ ofRectMode ofGetRectMode(){
 void ofNoFill(){
 	shape.setFilled(false);
 	shape.setStrokeWidth(currentStyle.lineWidth);
-	renderer->setFillMode(OF_OUTLINE);
+	ofGetCurrentRenderer()->setFillMode(OF_OUTLINE);
 	currentStyle.bFill = false;
 }
 
@@ -552,7 +601,7 @@ void ofNoFill(){
 void ofFill(){
 	shape.setFilled(true);
 	shape.setStrokeWidth(0);
-	renderer->setFillMode(OF_FILLED);
+	ofGetCurrentRenderer()->setFillMode(OF_FILLED);
 	currentStyle.bFill = true;
 }
 
@@ -565,13 +614,13 @@ ofFillFlag ofGetFill(){
 //----------------------------------------------------------
 void ofSetLineWidth(float lineWidth){
 	shape.setStrokeWidth(lineWidth);
-	renderer->setLineWidth(lineWidth);
+	ofGetCurrentRenderer()->setLineWidth(lineWidth);
 	currentStyle.lineWidth = lineWidth;
 }
 
 //----------------------------------------------------------
 void ofSetDepthTest(bool depthTest){
-	renderer->setDepthTest(depthTest);
+	ofGetCurrentRenderer()->setDepthTest(depthTest);
 	//currentStyle.depthTest = depthTest;
 }
 
@@ -593,7 +642,7 @@ void ofSetCurveResolution(int res){
 
 //----------------------------------------------------------
 void ofSetCircleResolution(int res){
-	renderer->setCircleResolution(res);
+	ofGetCurrentRenderer()->setCircleResolution(res);
 	currentStyle.circleResolution = res;
 	shape.setCircleResolution(res);
 }
@@ -616,7 +665,7 @@ void ofSetColor(int r, int g, int b){
 	currentStyle.color.b = b;
 	currentStyle.color.a = 255.0f;
 
-	renderer->setColor(r,g,b,255);
+	ofGetCurrentRenderer()->setColor(r,g,b,255);
 }
 
 
@@ -628,7 +677,7 @@ void ofSetColor(int r, int g, int b, int a){
 	currentStyle.color.b = b;
 	currentStyle.color.a = a;
 
-	renderer->setColor(r,g,b,a);
+	ofGetCurrentRenderer()->setColor(r,g,b,a);
 }
 
 //----------------------------------------------------------
@@ -651,17 +700,21 @@ void ofSetHexColor(int hexColor){
 
 void ofEnableBlendMode(ofBlendMode blendMode){
 	currentStyle.blendingMode = blendMode;
-	renderer->setBlendMode(blendMode);
+	ofGetCurrentRenderer()->setBlendMode(blendMode);
 }
 
 //----------------------------------------------------------
 void ofEnablePointSprites(){
-	renderer->enablePointSprites();
+	if(ofGetCurrentRenderer()->getType()=="GL" || ofGetCurrentRenderer()->getType()=="ProgrammableGL"){
+		((shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer())->enablePointSprites();
+	}
 }
 
 //----------------------------------------------------------
 void ofDisablePointSprites(){
-	renderer->disablePointSprites();
+	if(ofGetCurrentRenderer()->getType()=="GL" || ofGetCurrentRenderer()->getType()=="ProgrammableGL"){
+		((shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer())->disablePointSprites();
+	}
 }
 
 //----------------------------------------------------------
@@ -683,13 +736,13 @@ void ofDisableAlphaBlending(){
 void ofEnableSmoothing(){
 	// please see:
 	// http://www.opengl.org/resources/faq/technical/rasterization.htm
-	renderer->setLineSmoothing(true);
+	ofGetCurrentRenderer()->setLineSmoothing(true);
 	currentStyle.smoothing = 1;
 }
 
 //----------------------------------------------------------
 void ofDisableSmoothing(){
-	renderer->setLineSmoothing(false);
+	ofGetCurrentRenderer()->setLineSmoothing(false);
 	currentStyle.smoothing = 0;
 }
 
@@ -701,12 +754,12 @@ void ofSetPolyMode(ofPolyWindingMode mode){
 
 //----------------------------------------
 void ofEnableAntiAliasing(){
-	renderer->enableAntiAliasing();
+	ofGetCurrentRenderer()->enableAntiAliasing();
 }
 
 //----------------------------------------
 void ofDisableAntiAliasing(){
-	renderer->disableAntiAliasing();
+	ofGetCurrentRenderer()->disableAntiAliasing();
 }
 
 //----------------------------------------
@@ -798,121 +851,121 @@ void ofPopStyle(){
 // primitives
 
 //----------------------------------------------------------
-void ofTriangle(const ofPoint & p1, const ofPoint & p2, const ofPoint & p3){
-	ofTriangle(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z);
+void ofDrawTriangle(const ofPoint & p1, const ofPoint & p2, const ofPoint & p3){
+	ofDrawTriangle(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z);
 }
 
 //----------------------------------------------------------
-void ofTriangle(float x1,float y1,float x2,float y2,float x3, float y3){
-	ofTriangle(x1, y1, 0.0f, x2, y2, 0.0f, x3, y3, 0.0f);
+void ofDrawTriangle(float x1,float y1,float x2,float y2,float x3, float y3){
+	ofDrawTriangle(x1, y1, 0.0f, x2, y2, 0.0f, x3, y3, 0.0f);
 }
 
 //----------------------------------------------------------
-void ofTriangle(float x1,float y1,float z1,float x2,float y2,float z2,float x3, float y3,float z3){
-	renderer->drawTriangle(x1,y1,z1,x2,y2,z2,x3,y3,z3);
+void ofDrawTriangle(float x1,float y1,float z1,float x2,float y2,float z2,float x3, float y3,float z3){
+	ofGetCurrentRenderer()->drawTriangle(x1,y1,z1,x2,y2,z2,x3,y3,z3);
 }
 
 //----------------------------------------------------------
-void ofCircle(const ofPoint & p, float radius){
-	ofCircle(p.x, p.y, p.z, radius);
+void ofDrawCircle(const ofPoint & p, float radius){
+	ofDrawCircle(p.x, p.y, p.z, radius);
 }
 
 //----------------------------------------------------------
-void ofCircle(float x, float y, float radius){
-	ofCircle(x,y,0,radius);
+void ofDrawCircle(float x, float y, float radius){
+	ofDrawCircle(x,y,0,radius);
 }
 
 //----------------------------------------------------------
-void ofCircle(float x, float y, float z, float radius){
-	renderer->drawCircle(x,y,z,radius);
+void ofDrawCircle(float x, float y, float z, float radius){
+	ofGetCurrentRenderer()->drawCircle(x,y,z,radius);
 }
 
 //----------------------------------------------------------
-void ofEllipse(const ofPoint & p, float width, float height){
-	ofEllipse(p.x, p.y, p.z, width, height);
+void ofDrawEllipse(const ofPoint & p, float width, float height){
+	ofDrawEllipse(p.x, p.y, p.z, width, height);
 }
 
 //----------------------------------------------------------
-void ofEllipse(float x, float y, float width, float height){
-	ofEllipse(x,y,0,width,height);
+void ofDrawEllipse(float x, float y, float width, float height){
+	ofDrawEllipse(x,y,0,width,height);
 }
 
 //----------------------------------------------------------
-void ofEllipse(float x, float y, float z, float width, float height){
-	renderer->drawEllipse(x,y,z,width,height);
+void ofDrawEllipse(float x, float y, float z, float width, float height){
+	ofGetCurrentRenderer()->drawEllipse(x,y,z,width,height);
 }
 
 //----------------------------------------------------------
-void ofLine(const ofPoint & p1, const ofPoint & p2){
-	ofLine(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+void ofDrawLine(const ofPoint & p1, const ofPoint & p2){
+	ofDrawLine(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
 }
 
 //----------------------------------------------------------
-void ofLine(float x1,float y1,float x2,float y2){
-	ofLine(x1, y1, 0.0f, x2, y2, 0.0f);
+void ofDrawLine(float x1,float y1,float x2,float y2){
+	ofDrawLine(x1, y1, 0.0f, x2, y2, 0.0f);
 }
 
 //----------------------------------------------------------
-void ofLine(float x1,float y1,float z1,float x2,float y2,float z2){
-	renderer->drawLine(x1,y1,z1,x2,y2,z2);
+void ofDrawLine(float x1,float y1,float z1,float x2,float y2,float z2){
+	ofGetCurrentRenderer()->drawLine(x1,y1,z1,x2,y2,z2);
 }
 
 //----------------------------------------------------------
-void ofRect(const ofRectangle & r){
-	ofRect(r.x,r.y,0.0f,r.width, r.height);
+void ofDrawRectangle(const ofRectangle & r){
+	ofDrawRectangle(r.x,r.y,0.0f,r.width, r.height);
 }
 
 //----------------------------------------------------------
-void ofRect(const ofPoint & p,float w,float h){
-	ofRect(p.x, p.y, p.z, w, h);
+void ofDrawRectangle(const ofPoint & p,float w,float h){
+	ofDrawRectangle(p.x, p.y, p.z, w, h);
 }
 
 //----------------------------------------------------------
-void ofRect(float x,float y,float w,float h){
-	ofRect(x, y, 0.0f, w, h);
+void ofDrawRectangle(float x,float y,float w,float h){
+	ofDrawRectangle(x, y, 0.0f, w, h);
 }
 
 //----------------------------------------------------------
-void ofRect(float x,float y,float z,float w,float h){
-	renderer->drawRectangle(x,y,z,w,h);
+void ofDrawRectangle(float x,float y,float z,float w,float h){
+	ofGetCurrentRenderer()->drawRectangle(x,y,z,w,h);
 }
 
 //----------------------------------------------------------
-void ofRectRounded(const ofRectangle & b, float r){
-	ofRectRounded(b,r,r,r,r);
+void ofDrawRectRounded(const ofRectangle & b, float r){
+	ofDrawRectRounded(b,r,r,r,r);
 }
 
 //----------------------------------------------------------
-void ofRectRounded(const ofPoint & p, float w, float h, float r){
-	ofRectRounded(p.x, p.y, p.z, w, h, r,r,r,r);
+void ofDrawRectRounded(const ofPoint & p, float w, float h, float r){
+	ofDrawRectRounded(p.x, p.y, p.z, w, h, r,r,r,r);
 }
 
 //----------------------------------------------------------
-void ofRectRounded(float x, float y, float w, float h, float r){
-	ofRectRounded(x, y, 0.0f, w, h, r,r,r,r);
+void ofDrawRectRounded(float x, float y, float w, float h, float r){
+	ofDrawRectRounded(x, y, 0.0f, w, h, r,r,r,r);
 }
 
 //----------------------------------------------------------
-void ofRectRounded(const ofPoint & p, float w, float h, float topLeftRadius,
+void ofDrawRectRounded(const ofPoint & p, float w, float h, float topLeftRadius,
                                                         float topRightRadius,
                                                         float bottomRightRadius,
                                                         float bottomLeftRadius){
-    ofRectRounded(p.x,p.y,p.z,w,h,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+	ofDrawRectRounded(p.x,p.y,p.z,w,h,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
 }
 
 //----------------------------------------------------------
-void ofRectRounded(const ofRectangle & b, float topLeftRadius,
+void ofDrawRectRounded(const ofRectangle & b, float topLeftRadius,
                                           float topRightRadius,
                                           float bottomRightRadius,
                                           float bottomLeftRadius) {
 
 	// if the parameter is an ofRectangle we don't do rectMode
-	ofRectRounded(b.x,b.y,0.0f,b.width,b.height,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+	ofDrawRectRounded(b.x,b.y,0.0f,b.width,b.height,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
 }
 
 
 //----------------------------------------------------------
-void ofRectRounded(float x, float y, float z, float w, float h, float topLeftRadius,
+void ofDrawRectRounded(float x, float y, float z, float w, float h, float topLeftRadius,
                                                                 float topRightRadius,
                                                                 float bottomRightRadius,
                                                                 float bottomLeftRadius) {
@@ -932,7 +985,7 @@ void ofRectRounded(float x, float y, float z, float w, float h, float topLeftRad
 }
 
 //----------------------------------------------------------
-void ofCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
+void ofDrawCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
     shape.setCurveResolution(currentStyle.curveResolution);
     shape.clear();
 	shape.curveTo(x0,y0);
@@ -943,7 +996,7 @@ void ofCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x
 }
 
 //----------------------------------------------------------
-void ofCurve(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
+void ofDrawCurve(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
     shape.setCurveResolution(currentStyle.curveResolution);
 	shape.clear();
 	shape.curveTo(x0,y0,z0);
@@ -955,7 +1008,7 @@ void ofCurve(float x0, float y0, float z0, float x1, float y1, float z1, float x
 
 
 //----------------------------------------------------------
-void ofBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
+void ofDrawBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
     shape.setCurveResolution(currentStyle.curveResolution);
 	shape.clear();
 	shape.moveTo(x0,y0);
@@ -964,12 +1017,157 @@ void ofBezier(float x0, float y0, float x1, float y1, float x2, float y2, float 
 }
 
 //----------------------------------------------------------
-void ofBezier(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
+void ofDrawBezier(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
     shape.setCurveResolution(currentStyle.curveResolution);
 	shape.clear();
 	shape.moveTo(x0,y0,z0);
 	shape.bezierTo(x1,y1,z1,x2,y2,z2,x3,y3,z3);
 	shape.draw();
+}
+
+//----------------------------------------------------------
+void ofTriangle(const ofPoint & p1, const ofPoint & p2, const ofPoint & p3){
+	ofDrawTriangle(p1,p2,p3);
+}
+
+//----------------------------------------------------------
+void ofTriangle(float x1,float y1,float x2,float y2,float x3, float y3){
+	ofDrawTriangle(x1, y1, x2, y2, x3, y3);
+}
+
+//----------------------------------------------------------
+void ofTriangle(float x1,float y1,float z1,float x2,float y2,float z2,float x3, float y3,float z3){
+	ofDrawTriangle(x1,y1,z1,x2,y2,z2,x3,y3,z3);
+}
+
+//----------------------------------------------------------
+void ofCircle(const ofPoint & p, float radius){
+	ofDrawCircle(p, radius);
+}
+
+//----------------------------------------------------------
+void ofCircle(float x, float y, float radius){
+	ofDrawCircle(x,y,radius);
+}
+
+//----------------------------------------------------------
+void ofCircle(float x, float y, float z, float radius){
+	ofDrawCircle(x,y,z,radius);
+}
+
+//----------------------------------------------------------
+void ofEllipse(const ofPoint & p, float width, float height){
+	ofDrawEllipse(p, width, height);
+}
+
+//----------------------------------------------------------
+void ofEllipse(float x, float y, float width, float height){
+	ofDrawEllipse(x,y,width,height);
+}
+
+//----------------------------------------------------------
+void ofEllipse(float x, float y, float z, float width, float height){
+	ofDrawEllipse(x,y,z,width,height);
+}
+
+//----------------------------------------------------------
+void ofLine(const ofPoint & p1, const ofPoint & p2){
+	ofDrawLine(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+}
+
+//----------------------------------------------------------
+void ofLine(float x1,float y1,float x2,float y2){
+	ofDrawLine(x1, y1, x2, y2);
+}
+
+//----------------------------------------------------------
+void ofLine(float x1,float y1,float z1,float x2,float y2,float z2){
+	ofDrawLine(x1,y1,z1,x2,y2,z2);
+}
+
+//----------------------------------------------------------
+void ofRect(const ofRectangle & r){
+	ofDrawRectangle(r.x,r.y,r.width, r.height);
+}
+
+//----------------------------------------------------------
+void ofRect(const ofPoint & p,float w,float h){
+	ofDrawRectangle(p, w, h);
+}
+
+//----------------------------------------------------------
+void ofRect(float x,float y,float w,float h){
+	ofDrawRectangle(x, y, w, h);
+}
+
+//----------------------------------------------------------
+void ofRect(float x,float y,float z,float w,float h){
+	ofDrawRectangle(x,y,z,w,h);
+}
+
+//----------------------------------------------------------
+void ofRectRounded(const ofRectangle & b, float r){
+	ofDrawRectRounded(b,r);
+}
+
+//----------------------------------------------------------
+void ofRectRounded(const ofPoint & p, float w, float h, float r){
+	ofDrawRectRounded(p, w, h, r);
+}
+
+//----------------------------------------------------------
+void ofRectRounded(float x, float y, float w, float h, float r){
+	ofDrawRectRounded(x, y, w, h, r);
+}
+
+//----------------------------------------------------------
+void ofRectRounded(const ofPoint & p, float w, float h, float topLeftRadius,
+                                                        float topRightRadius,
+                                                        float bottomRightRadius,
+                                                        float bottomLeftRadius){
+	ofDrawRectRounded(p,w,h,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+}
+
+//----------------------------------------------------------
+void ofRectRounded(const ofRectangle & b, float topLeftRadius,
+                                          float topRightRadius,
+                                          float bottomRightRadius,
+                                          float bottomLeftRadius) {
+
+	// if the parameter is an ofRectangle we don't do rectMode
+	ofDrawRectRounded(b,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+}
+
+
+//----------------------------------------------------------
+void ofRectRounded(float x, float y, float z, float w, float h, float topLeftRadius,
+                                                                float topRightRadius,
+                                                                float bottomRightRadius,
+                                                                float bottomLeftRadius) {
+
+	ofDrawRectRounded(x,y,z,w,h,topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+
+}
+
+//----------------------------------------------------------
+void ofCurve(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
+    ofDrawCurve(x0, y0, x1, y1, x2, y2, x3, y3);
+}
+
+//----------------------------------------------------------
+void ofCurve(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
+	ofDrawCurve(x0, y0, z0, x1, y1, z1, x2, y2, z2, x3, y3, z3);
+}
+
+
+//----------------------------------------------------------
+void ofBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3){
+    ofDrawBezier(x0,y0,x1,y1,x2,y2,x3,y3);
+}
+
+//----------------------------------------------------------
+void ofBezier(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3){
+    ofDrawBezier(x0,y0,z0,x1,y1,z1,x2,y2,z2,x3,y3,z3);
 }
 
 //----------------------------------------------------------
@@ -1076,7 +1274,7 @@ void ofDrawBitmapString(string textString, float x, float y){
 }
 //--------------------------------------------------
 void ofDrawBitmapString(string textString, float x, float y, float z){
-	renderer->drawString(textString,x,y,z,currentStyle.drawBitmapMode);
+	ofGetCurrentRenderer()->drawString(textString,x,y,z,currentStyle.drawBitmapMode);
 }
 //--------------------------------------------------
 void ofDrawBitmapStringHighlight(string text, const ofPoint& position, const ofColor& background, const ofColor& foreground) {
@@ -1121,7 +1319,7 @@ void ofDrawBitmapStringHighlight(string text, int x, int y, const ofColor& backg
 		
 	}
 	
-	ofRect(0, 0, width + 2 * padding, height + 2 * padding);
+	ofDrawRectangle(0, 0, width + 2 * padding, height + 2 * padding);
 	ofPopMatrix();
 	ofSetColor(foreground);
 	ofNoFill();

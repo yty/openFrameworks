@@ -9,11 +9,6 @@
 
 
 //------------------------------------------------------------------------------
-int receiveAudioBufferAndCallSimpleApp(void *outputBuffer, void *inputBuffer, unsigned int bufferSize,
-           double streamTime, RtAudioStreamStatus status, void *data);
-
-
-//------------------------------------------------------------------------------
 ofRtAudioSoundStream::ofRtAudioSoundStream(){
 	outDeviceID		= -1;
     inDeviceID		= -1;
@@ -29,9 +24,9 @@ ofRtAudioSoundStream::~ofRtAudioSoundStream(){
 
 //------------------------------------------------------------------------------
 void ofRtAudioSoundStream::listDevices(){
-	ofPtr<RtAudio> audioTemp;
+	shared_ptr<RtAudio> audioTemp;
 	try {
-		audioTemp = ofPtr<RtAudio>(new RtAudio());
+		audioTemp = shared_ptr<RtAudio>(new RtAudio());
 	} catch (RtError &error) {
 		error.printMessage();
 		return;
@@ -91,7 +86,7 @@ bool ofRtAudioSoundStream::setup(int outChannels, int inChannels, int _sampleRat
 	bufferSize			= ofNextPow2(_bufferSize);	// must be pow2
 
 	try {
-		audio = ofPtr<RtAudio>(new RtAudio);
+		audio = shared_ptr<RtAudio>(new RtAudio);
 	}	catch (RtError &error) {
 		error.printMessage();
 		return false;
@@ -179,7 +174,7 @@ void ofRtAudioSoundStream::close(){
  	}
 	soundOutputPtr	= NULL;
 	soundInputPtr	= NULL;
-	audio = ofPtr<RtAudio>();	// delete
+	audio.reset();	// delete
 }
 
 //------------------------------------------------------------------------------

@@ -737,7 +737,7 @@ void ofPolyline::simplify(float tol){
 }
 
 //--------------------------------------------------
-void ofPolyline::draw(){
+void ofPolyline::draw() const{
 	ofGetCurrentRenderer()->draw(*this);
 }
 
@@ -773,7 +773,7 @@ float ofPolyline::getIndexAtLength(float length) const {
         distAt1 = lengths[i1];
         if(distAt1 <= length) {         // if Length at i1 is less than desired Length (this is good)
             distAt2 = lengths[i1+1];
-            if(distAt2 > length) {
+            if(distAt2 >= length) {
                 float t = ofMap(length, distAt1, distAt2, 0, 1);
                 return i1 + t;
             } else {
@@ -1007,5 +1007,46 @@ void ofPolyline::updateCache(bool bForceUpdate) const {
         
         if(isClosed()) lengths.push_back(length);
     }
+}
+
+
+//--------------------------------------------------
+vector<ofPoint>::iterator ofPolyline::begin(){
+	return points.begin();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::iterator ofPolyline::end(){
+	return points.end();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::const_iterator ofPolyline::begin() const{
+	return points.begin();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::const_iterator ofPolyline::end() const{
+	return points.end();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::reverse_iterator ofPolyline::rbegin(){
+	return points.rbegin();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::reverse_iterator ofPolyline::rend(){
+	return points.rend();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::const_reverse_iterator ofPolyline::rbegin() const{
+	return points.rbegin();
+}
+
+//--------------------------------------------------
+vector<ofPoint>::const_reverse_iterator ofPolyline::rend() const{
+	return points.rend();
 }
 

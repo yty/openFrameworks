@@ -44,6 +44,7 @@ void ofNode::setTransformMatrix(const ofMatrix4x4 &m44) {
 
 	ofQuaternion so;
 	localTransformMatrix.decompose(position, orientation, scale, so);
+	updateAxis();
 	
 	onPositionChanged();
 	onOrientationChanged();
@@ -197,6 +198,7 @@ void ofNode::roll(float degrees) {
 void ofNode::rotate(const ofQuaternion& q) {
 	orientation *= q;
 	createMatrix();
+	onOrientationChanged();
 }
 
 //----------------------------------------
@@ -218,7 +220,7 @@ void ofNode::rotateAround(const ofQuaternion& q, const ofVec3f& point) {
 	
 	setGlobalPosition((getGlobalPosition() - point)* q + point); 
 	
-//	onOrientationChanged();
+	onOrientationChanged();
 	onPositionChanged();
 }
 
@@ -247,6 +249,13 @@ void ofNode::lookAt(const ofVec3f& lookAtPosition, ofVec3f upVector) {
 //----------------------------------------
 void ofNode::lookAt(const ofNode& lookAtNode, const ofVec3f& upVector) {
 	lookAt(lookAtNode.getGlobalPosition(), upVector);
+}
+
+//----------------------------------------
+void ofNode::updateAxis() {
+	if(scale[0]>0) axis[0] = getLocalTransformMatrix().getRowAsVec3f(0)/scale[0];
+	if(scale[1]>0) axis[1] = getLocalTransformMatrix().getRowAsVec3f(1)/scale[1];
+	if(scale[2]>0) axis[2] = getLocalTransformMatrix().getRowAsVec3f(2)/scale[2];
 }
 
 //----------------------------------------
@@ -347,14 +356,14 @@ void ofNode::resetTransform() {
 }
 
 //----------------------------------------
-void ofNode::draw() {
+void ofNode::draw()  const{
 	transformGL();
-	customDraw();
+	const_cast<ofNode*>(this)->customDraw();
 	restoreTransformGL();
 }
 
 //----------------------------------------
-void ofNode::customDraw() {
+void ofNode::customDraw(){
 	ofDrawBox(10);
 	ofDrawAxis(20);
 }
@@ -379,9 +388,7 @@ void ofNode::createMatrix() {
 	localTransformMatrix.rotate(orientation);
 	localTransformMatrix.setTranslation(position);
 	
-	if(scale[0]>0) axis[0] = getLocalTransformMatrix().getRowAsVec3f(0)/scale[0];
-	if(scale[1]>0) axis[1] = getLocalTransformMatrix().getRowAsVec3f(1)/scale[1];
-	if(scale[2]>0) axis[2] = getLocalTransformMatrix().getRowAsVec3f(2)/scale[2];
+	updateAxis();
 }
 
 
