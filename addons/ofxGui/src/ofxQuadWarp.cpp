@@ -30,6 +30,7 @@ ofxGuiGroup* ofxQuadWarp::setup(string quadWarpName, ofBaseDraws &_content, floa
 
 	b.x = 0;
 	b.y = 0;
+	curMoveStep = 1;
 
 	fixSize();
 
@@ -148,6 +149,72 @@ bool ofxQuadWarp::mouseReleased(ofMouseEventArgs & args){
 	return false;
 }
 
+void ofxQuadWarp::keyPressed(int key){
+	
+	switch (key)
+	{
+		case '7':
+			bGuiActive = true;
+			setValue(dstQuadPos[0]->x * width + b.x,dstQuadPos[0]->y * height + b.y,true);
+			break;
+		case '9':
+			bGuiActive = true;
+			setValue(dstQuadPos[1]->x * width + b.x,dstQuadPos[1]->y * height + b.y,true);
+			break;
+		case '1':
+			bGuiActive = true;
+			setValue(dstQuadPos[3]->x * width + b.x,dstQuadPos[3]->y * height + b.y,true);
+			break;
+		case '3':
+			bGuiActive = true;
+			setValue(dstQuadPos[2]->x * width + b.x,dstQuadPos[2]->y * height + b.y,true);
+			break;
+	}
+
+
+	ofVec2f v2f;
+
+
+
+	for (int i = 0; i < 4; i++){
+
+		if (bCircle[i]){
+
+			switch (key)
+			{
+				case '8':
+
+					v2f.set(0,curMoveStep);
+					dstQuadPos[i] -= v2f;
+					bGuiActive = true;
+					break;
+				case '2':
+					v2f.set(0,curMoveStep);
+					dstQuadPos[i] += v2f;
+					bGuiActive = true;
+					break;
+				case '4':
+
+					v2f.set(curMoveStep,0);
+					dstQuadPos[i] -= v2f;
+					bGuiActive = true;
+					break;
+				case '6':
+					v2f.set(curMoveStep,0);
+					dstQuadPos[i] += v2f;
+					bGuiActive = true;
+					break;
+			}
+		}
+	}
+
+
+}
+
+void ofxQuadWarp::keyReleased(int key){
+
+}
+
 bool ofxQuadWarp::setValue(float mx, float my, bool bCheck){
 	if( !isGuiDrawing() ){
 		bGuiActive = false;
@@ -159,6 +226,8 @@ bool ofxQuadWarp::setValue(float mx, float my, bool bCheck){
 	for (int i = 0; i < 4; i++)
 	{
 		if( bCheck ){
+			//cout<<mx<<","<<dstQuadPos[i]->x * width + b.x<<endl;
+			//cout<<my<<","<<dstQuadPos[i]->y * height + b.y<<endl;
 			if(ofDistSquared(mx,my,dstQuadPos[i]->x * width + b.x,dstQuadPos[i]->y * height + b.y)<MOUSE_DISTANCE * MOUSE_DISTANCE){
 				bGuiActive = true;
 			}else{
@@ -199,7 +268,7 @@ void ofxQuadWarp::InitQuadPos(float w,float h){
 	ofLogNotice("ofxQuadWarp")<<"InitQuadPos()=>"<<w<<","<<h;
 }
 
-void ofxQuadWarp::InitQuadPos(float w,float h,vector<ofPoint> &p){
+void ofxQuadWarp::InitQuadPos(float w,float h,ofPoint &p1,ofPoint &p2,ofPoint &p3,ofPoint &p4){
 	b.width  = fixWidth;
 	b.height = fixWidth * (h/w);// * ( content->getWidth()/initWidth) ;
 	
@@ -209,10 +278,10 @@ void ofxQuadWarp::InitQuadPos(float w,float h,vector<ofPoint> &p){
 	if(dstQuadPos == NULL){
 		dstQuadPos = new ofParameter<ofVec3f>[4];
 	}
-	dstQuadPos[0].set("dstQuadPos0",p[0]);
-	dstQuadPos[1].set("dstQuadPos1",p[1]);
-	dstQuadPos[2].set("dstQuadPos2",p[2]);
-	dstQuadPos[3].set("dstQuadPos3",p[3]);
+	dstQuadPos[0].set("dstQuadPos0",p1);
+	dstQuadPos[1].set("dstQuadPos1",p2);
+	dstQuadPos[2].set("dstQuadPos2",p3);
+	dstQuadPos[3].set("dstQuadPos3",p4);
 	
 	if(srcQuadPos == NULL){
 		srcQuadPos = new ofPoint[4];
