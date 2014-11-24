@@ -16,7 +16,8 @@ public:
 	virtual bool mousePressed(ofMouseEventArgs & args);
 	virtual bool mouseDragged(ofMouseEventArgs & args);
 	virtual bool mouseReleased(ofMouseEventArgs & args);
-	
+	virtual bool mouseScrolled(ofMouseEventArgs & args){return false;}
+
 	template<class ListenerClass, typename ListenerMethod>
 	void addListener(ListenerClass * listener, ListenerMethod method){
 		value.addListener(listener,method);
