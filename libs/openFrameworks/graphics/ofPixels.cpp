@@ -126,7 +126,13 @@ static ofImageType ofImageTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	case OF_PIXELS_RGB:
 		return OF_IMAGE_COLOR;
 		break;
+	case OF_PIXELS_BGR:
+		return OF_IMAGE_COLOR;
+		break;
 	case OF_PIXELS_RGBA:
+		return OF_IMAGE_COLOR_ALPHA;
+		break;
+	case OF_PIXELS_BGRA:
 		return OF_IMAGE_COLOR_ALPHA;
 		break;
 	case OF_PIXELS_UNKNOWN:
@@ -412,7 +418,7 @@ void ofPixels_<PixelType>::allocate(int w, int h, ofImageType type){
 
 template<typename PixelType>
 void ofPixels_<PixelType>::swapRgb(){
-	switch(pixelFormat){
+	/*switch(pixelFormat){
 	case OF_PIXELS_RGB:
 	case OF_PIXELS_BGR:
 	case OF_PIXELS_RGBA:
@@ -427,7 +433,7 @@ void ofPixels_<PixelType>::swapRgb(){
 	default:
 		ofLogWarning("ofPixels") << "rgb swap not supported for this pixel format";
 		break;
-	}
+	}*/
 	switch(pixelFormat){
 	case OF_PIXELS_RGB:
 		pixelFormat = OF_PIXELS_BGR;
