@@ -40,9 +40,11 @@ enum ofTargetPlatform{
         #define OF_DEPRECATED_MSG(message, func) func __attribute__ ((deprecated))
     #endif
 	#define OF_DEPRECATED(func) func __attribute__ ((deprecated))
+	#define OF_INTERNAL_DEPRECATED(func) func __attribute__ ((deprecated("OF core deprecated")))
 #elif defined(_MSC_VER)
 	#define OF_DEPRECATED_MSG(message, func) __declspec(deprecated(message)) func
 	#define OF_DEPRECATED(func) __declspec(deprecated) func
+	#define OF_INTERNAL_DEPRECATED(func) __declspec(deprecated("OF core deprecated")) func
 #else
 	#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
 	#define OF_DEPRECATED_MSG(message, func) func
@@ -59,7 +61,8 @@ enum ofTargetPlatform{
 #if defined( __WIN32__ ) || defined( _WIN32 )
 	#define TARGET_WIN32
 #elif defined( __APPLE_CC__)
-	#include <TargetConditionals.h>
+    #define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0
+    #include <TargetConditionals.h>
 
 	#if (TARGET_OS_IPHONE_SIMULATOR) || (TARGET_OS_IPHONE) || (TARGET_IPHONE)
 		#define TARGET_OF_IPHONE

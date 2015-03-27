@@ -199,10 +199,12 @@ bool ofShader::setupShaderFromSource(GLenum type, string source, string sourceDi
     
 	if(status == GL_TRUE){
 		ofLogVerbose("ofShader") << "setupShaderFromSource(): " << nameForType(type) + " shader compiled";
+#ifdef TARGET_EMSCRIPTEN
+		checkShaderInfoLog(shader, type, OF_LOG_VERBOSE);
+#else
 		checkShaderInfoLog(shader, type, OF_LOG_WARNING);
-	}
-	
-	else if (status == GL_FALSE) {
+#endif
+	}else if (status == GL_FALSE) {
 		ofLogError("ofShader") << "setupShaderFromSource(): " << nameForType(type) + " shader failed to compile";
 		checkShaderInfoLog(shader, type, OF_LOG_ERROR);
 		return false;
@@ -227,7 +229,7 @@ string ofShader::parseForIncludes( const string& source, const string& sourceDir
 string ofShader::parseForIncludes( const string& source, vector<string>& included, int level, const string& sourceDirectoryPath) {
     
 	if ( level > 32 ) {
-		ofLog( OF_LOG_ERROR, "glsl header inclusion depth limit reached, might be caused by cyclic header inclusion" );
+		ofLogError( "ofShader", "glsl header inclusion depth limit reached, might be caused by cyclic header inclusion" );
 		return "";
 	}
 	
@@ -249,7 +251,7 @@ string ofShader::parseForIncludes( const string& source, vector<string>& include
 		string include = line.substr(matches[1].offset, matches[1].length);
 		
 		if ( std::find( included.begin(), included.end(), include ) != included.end() ) {
-			ofLogVerbose() << include << " already included";
+			ofLogVerbose("ofShader") << include << " already included";
 			continue;
 		}
 		
@@ -261,7 +263,7 @@ string ofShader::parseForIncludes( const string& source, vector<string>& include
 		
 		ofBuffer buffer = ofBufferFromFile( include );
 		if ( !buffer.size() ) {
-			ofLogError() <<"Could not open glsl include file " << include;
+			ofLogError("ofShader") <<"Could not open glsl include file " << include;
 			continue;
 		}
 		
@@ -274,10 +276,11 @@ string ofShader::parseForIncludes( const string& source, vector<string>& include
 
 //--------------------------------------------------------------
 string ofShader::getShaderSource(GLenum type)  const{
-	if (shaderSource.find(type) != shaderSource.end()) {
-		return shaderSource[type];
+	unordered_map<GLenum,string>::const_iterator source = shaderSource.find(type);
+	if ( source != shaderSource.end()) {
+		return source->second;
 	} else {
-		ofLogError() << "No shader source for shader of type: " << nameForType(type);
+		ofLogError("ofShader") << "No shader source for shader of type: " << nameForType(type);
 		return "";
 	}
 }
@@ -354,7 +357,7 @@ void ofShader::checkShaderInfoLog(GLuint shader, GLenum type, ofLogLevel logLeve
 			ofBuffer buf = shaderSource[type];
 			ofBuffer::Line line = buf.getLines().begin();
 			if (!matches.empty()){
-			int  offendingLineNumber = ofToInt(infoString.substr(matches[1].offset, matches[1].length));
+				int  offendingLineNumber = ofToInt(infoString.substr(matches[1].offset, matches[1].length));
 				ostringstream msg;
 				msg << "ofShader: " + nameForType(type) + ", offending line " << offendingLineNumber << " :"<< endl;
 				for(int i=0; line != buf.getLines().end(); line++, i++ ){
@@ -364,6 +367,8 @@ void ofShader::checkShaderInfoLog(GLuint shader, GLenum type, ofLogLevel logLeve
 					}
 				}
 				ofLog(logLevel) << msg.str();
+			}else{
+				ofLogError() << shaderSource[type];
 			}
 		}
 		delete [] infoBuffer;
@@ -400,7 +405,7 @@ void ofShader::checkProgramInfoLog(GLuint program) {
 			}
 		}
 #endif
-		ofLog(OF_LOG_ERROR, msg + infoBuffer);
+		ofLogError("ofShader", msg + infoBuffer);
 		delete [] infoBuffer;
 	}
 }
@@ -435,7 +440,7 @@ bool ofShader::linkProgram() {
 		for(unordered_map<GLenum, GLuint>::const_iterator it = shaders.begin(); it != shaders.end(); ++it){
 			GLuint shader = it->second;
 			if(shader) {
-				ofLogVerbose() << "linkProgram(): attaching " << nameForType(it->first) << " shader to program " << program;
+				ofLogVerbose("ofShader") << "linkProgram(): attaching " << nameForType(it->first) << " shader to program " << program;
 				glAttachShader(program, shader);
 			}
 		}
@@ -487,6 +492,7 @@ void ofShader::unload() {
 		}
 
 		shaders.clear();
+		uniformLocations.clear();
 	}
 	bLoaded = false;
 }
@@ -498,27 +504,12 @@ bool ofShader::isLoaded() const{
 
 //--------------------------------------------------------------
 void ofShader::begin()  const{
-	if (bLoaded){
-		glUseProgram(program);
-		shared_ptr<ofGLProgrammableRenderer> renderer = ofGetGLProgrammableRenderer();
-		if(renderer){
-			renderer->beginCustomShader(*this);
-		}
-	}else{
-		ofLogError("ofShader") << "begin(): couldn't begin, shader not loaded";
-	}
+	ofGetGLRenderer()->bind(*this);
 }
 
 //--------------------------------------------------------------
 void ofShader::end()  const{
-	if (bLoaded){
-		shared_ptr<ofGLProgrammableRenderer> renderer = ofGetGLProgrammableRenderer();
-		if(renderer){
-			renderer->endCustomShader();
-		}else{
-			glUseProgram(0);
-		}
-	}
+	ofGetGLRenderer()->unbind(*this);
 }
 
 #if !defined(TARGET_OPENGLES) && defined(glDispatchCompute)
@@ -730,18 +721,18 @@ void ofShader::setUniforms(const ofParameterGroup & parameters) const{
 }
 	
 //--------------------------------------------------------------
-void ofShader::setUniformMatrix3f(const string & name, const ofMatrix3x3 & m)  const{
+void ofShader::setUniformMatrix3f(const string & name, const ofMatrix3x3 & m, int count)  const{
 	if(bLoaded) {
 		int loc = getUniformLocation(name);
-		if (loc != -1) glUniformMatrix3fv(loc, 1, GL_FALSE, &m.a);
+		if (loc != -1) glUniformMatrix3fv(loc, count, GL_FALSE, &m.a);
 	}
 }
 
 //--------------------------------------------------------------
-void ofShader::setUniformMatrix4f(const string & name, const ofMatrix4x4 & m)  const{
+void ofShader::setUniformMatrix4f(const string & name, const ofMatrix4x4 & m, int count)  const{
 	if(bLoaded) {
 		int loc = getUniformLocation(name);
-		if (loc != -1) glUniformMatrix4fv(loc, 1, GL_FALSE, m.getPtr());
+		if (loc != -1) glUniformMatrix4fv(loc, count, GL_FALSE, m.getPtr());
 	}
 }
 
@@ -869,13 +860,14 @@ GLint ofShader::getAttributeLocation(const string & name)  const{
 
 //--------------------------------------------------------------
 GLint ofShader::getUniformLocation(const string & name)  const{
+	if(!bLoaded) return -1;
 	GLint loc = -1;
 
 	// tig: caching uniform locations gives the RPi a 17% boost on average
 	unordered_map<string, GLint>::iterator it = uniformLocations.find(name);
 	if (it == uniformLocations.end()){
 		loc = glGetUniformLocation(program, name.c_str());
-		if (loc != -1) uniformLocations[name] = loc;
+		uniformLocations[name] = loc;
 	} else {
 		loc = it->second;
 	}
@@ -943,7 +935,12 @@ GLuint ofShader::getProgram() const{
 
 //--------------------------------------------------------------
 GLuint ofShader::getShader(GLenum type) const{
-	return shaders[type];
+	unordered_map<GLenum,GLuint>::const_iterator shader = shaders.find(type);
+	if(shader!=shaders.end()){
+		return shader->second;
+	}else{
+		return 0;
+	}
 }
 
 //--------------------------------------------------------------
