@@ -38,7 +38,7 @@ static shared_ptr<ofBaseRenderer> storedRenderer;
 static shared_ptr<ofRendererCollection> rendererCollection;
 static bool bScreenShotStarted = false;
 
-
+	
 static void ofEndSaveScreen(){
 	if( bScreenShotStarted ){
 
@@ -51,7 +51,7 @@ static void ofEndSaveScreen(){
 			ofSetCurrentRenderer(storedRenderer,true);
 			storedRenderer.reset();
 		}
-
+		
 		bScreenShotStarted = false;
 	}
 
@@ -394,11 +394,11 @@ void ofBackgroundGradient(const ofColor& start, const ofColor& end, ofGradientMo
 	gradientMesh.clear();
 	gradientMesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
 #ifndef TARGET_EMSCRIPTEN
-	#ifdef TARGET_OPENGLES
-		if(ofIsGLProgrammableRenderer()) gradientMesh.setUsage(GL_STREAM_DRAW);
-	#else
-		gradientMesh.setUsage(GL_STREAM_DRAW);
-	#endif
+#ifdef TARGET_OPENGLES
+	if(ofIsGLProgrammableRenderer()) gradientMesh.setUsage(GL_STREAM_DRAW);
+#else
+	gradientMesh.setUsage(GL_STREAM_DRAW);
+#endif
 #endif
 	if(mode == OF_GRADIENT_CIRCULAR) {
 		// this could be optimized by building a single mesh once, then copying
@@ -583,14 +583,14 @@ void ofEnableBlendMode(ofBlendMode blendMode){
 void ofEnablePointSprites(){
 	if(ofGetCurrentRenderer()->getType()=="GL" || ofGetCurrentRenderer()->getType()=="ProgrammableGL"){
 		static_cast<ofBaseGLRenderer*>(ofGetCurrentRenderer().get())->enablePointSprites();
-	}
+}
 }
 
 //----------------------------------------------------------
 void ofDisablePointSprites(){
 	if(ofGetCurrentRenderer()->getType()=="GL" || ofGetCurrentRenderer()->getType()=="ProgrammableGL"){
 		static_cast<ofBaseGLRenderer*>(ofGetCurrentRenderer().get())->disablePointSprites();
-	}
+}
 }
 
 //----------------------------------------------------------

@@ -203,7 +203,7 @@ void ofSetBackgroundColorHex(int hexColor, int alpha = 255);
 ///     }
 /// }
 /// ~~~~
-void ofSetBackgroundAuto(bool bManual);		// default is true
+void 	ofSetBackgroundAuto(bool bManual);		// default is true
 bool ofGetBackgroundAuto();
 
 /// \brief Clears the color and depth bits of current renderer and replaces it with
@@ -470,6 +470,7 @@ void ofDrawCurve(float x0, float y0, float x1, float y1, float x2, float y2, flo
 void ofDrawCurve(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3);
 void ofDrawBezier(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3);
 void ofDrawBezier(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3);
+void ofQuadBezier(float x0, float y0, float x1, float y1, float x2, float y2);
 
 OF_DEPRECATED_MSG("Use ofDrawTriangle instead",void ofTriangle(float x1,float y1,float x2,float y2,float x3, float y3));
 OF_DEPRECATED_MSG("Use ofDrawTriangle instead",void ofTriangle(float x1,float y1,float z1,float x2,float y2,float z2,float x3, float y3,float z3));
@@ -1021,7 +1022,7 @@ bool ofIsVFlipped();
 void ofViewport(ofRectangle viewport);
 
 /// \brief Setup the drawing viewport
-/// \param x The x position of the viewport
+///?\param x The x position of the viewport
 /// \param y The y position of the viewport
 /// \param width The width of the viewport, defaults to ofGetWidth()
 /// \param height The height of the viewport, defaults to ofGetHeight()

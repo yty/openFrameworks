@@ -50,7 +50,7 @@ ofBuffer::ofBuffer(istream & stream)
 //--------------------------------------------------
 bool ofBuffer::set(istream & stream){
 	if(stream.bad()){
-		clear();
+	clear();
 		return false;
 	}else{
 		buffer.clear();
@@ -60,7 +60,7 @@ bool ofBuffer::set(istream & stream){
 	while(stream.good()){
 		stream.read(&aux_buffer[0], ioSize);
 		buffer.insert(buffer.end(),aux_buffer.begin(),aux_buffer.begin()+stream.gcount());
-	}
+		}
 	buffer.push_back(0);
 	currentLine = getLines().begin();
 	return true;
@@ -177,7 +177,7 @@ void ofBuffer::setIOBufferSize(size_t _ioSize){
 string ofBuffer::getNextLine(){
 	++currentLine;
 	return currentLine.asString();
-}
+	}
 
 //--------------------------------------------------
 string ofBuffer::getFirstLine(){
@@ -431,9 +431,9 @@ bool ofFile::openStream(Mode _mode, bool _binary){
 			break;
 	}
 	switch(_mode){
-		case Reference:
-			return true;
-			break;
+	 case Reference:
+		 return true;
+		 break;
 
 		case ReadOnly:
 			if(exists()){
@@ -541,8 +541,8 @@ bool ofFile::exists() const {
 	}
 	catch(...){
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 string ofFile::path() const {
@@ -581,8 +581,8 @@ bool ofFile::canRead() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check canRead" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::canWrite() const {
@@ -591,8 +591,8 @@ bool ofFile::canWrite() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check canWrite" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::canExecute() const {
@@ -601,8 +601,8 @@ bool ofFile::canExecute() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check canExecute" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::isFile() const {
@@ -611,8 +611,8 @@ bool ofFile::isFile() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check isFile" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::isLink() const {
@@ -621,8 +621,8 @@ bool ofFile::isLink() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check isLink" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::isDirectory() const {
@@ -631,8 +631,8 @@ bool ofFile::isDirectory() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check isDirectory" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::isDevice() const {
@@ -641,8 +641,8 @@ bool ofFile::isDevice() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check isDevice" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofFile::isHidden() const {
@@ -651,8 +651,8 @@ bool ofFile::isHidden() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofFile") << "Couldn't check isHidden" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 void ofFile::setWriteable(bool flag){
@@ -1055,8 +1055,8 @@ bool ofDirectory::isHidden() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofDirectory") << "Couldn't check isHidden" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 void ofDirectory::setWriteable(bool flag){
@@ -1097,8 +1097,8 @@ bool ofDirectory::isDirectory() const {
 	}catch(Poco::Exception & e){
 		ofLogWarning("ofDirectory") << "Couldn't check isDirectory" << e.what();
 	}
-	return false;
-}
+		return false;
+	}
 
 //------------------------------------------------------------------------------------------------------------
 bool ofDirectory::copyTo(string path, bool bRelativeToData, bool overwrite){

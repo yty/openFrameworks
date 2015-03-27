@@ -121,8 +121,8 @@ bool ofGstVideoPlayer::createPipeline(string name){
 	}else{
 		string format = ofGstVideoUtils::getGstFormatName(internalPixelFormat);
 		caps = gst_caps_new_simple(mime.c_str(),
-											"format", G_TYPE_STRING, format.c_str(),
-											NULL);
+										"format", G_TYPE_STRING, format.c_str(),
+										NULL);
 	}
 #endif
 
@@ -212,7 +212,7 @@ bool ofGstVideoPlayer::load(string name){
 		bIsStream = bAsyncLoad;
 	}else{
 		bIsStream = true;
-	}
+}
 	ofLogVerbose("ofGstVideoPlayer") << "loadMovie(): loading \"" << name << "\"";
 
 	if(isInitialized()){
