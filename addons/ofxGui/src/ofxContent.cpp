@@ -45,21 +45,21 @@ void ofxContent::fixSize(){
 void ofxContent::generateDraw(){
 	
 	fg.clear();
+	fg.setFilled(false);
 	if(value){
-		fg.setFilled(true);
+		fg.setStrokeWidth(2);
 		fg.setFillColor(thisFillColor);
 	}else{
-		fg.setFilled(false);
-		fg.setStrokeWidth(1);
+		fg.setStrokeWidth(0);
 		fg.setStrokeColor(thisFillColor);
 	}
-	fg.rectangle(ofRectangle(b.x,b.y+b.height-defaultHeight,b.width,defaultHeight));
+	fg.rectangle(ofRectangle(b.x,b.y,b.width,b.height));
 }
 
 void ofxContent::render() {
 	fixSize();
 	value = (nameSelect == this->name);
-	ofColor c = ofGetStyle().color;
+	//ofColor c = ofGetStyle().color;
 	this->content->draw(b.x,b.y,b.width,((b.width * content->getHeight())/content->getWidth()));
 	fg.draw();
 }

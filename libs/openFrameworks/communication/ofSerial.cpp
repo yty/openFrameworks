@@ -425,11 +425,6 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 		}
 	#endif
 
-	cfgSize=sizeof(cfg);
-	GetCommConfig(hComm,&cfg,&cfgSize);
-	int bps = baud;
-	sprintf(buf,"baud=%d parity=%c data=%d stop=%d",bps,parity,dataBits,stopBits);
-
 	// Set baudrate and bits etc.
 	// Note that BuildCommDCB() clears XON/XOFF and hardware control by default
 
@@ -451,10 +446,6 @@ bool ofSerial::setup(string portName, int baud,char parity,int dataBits,int stop
 
 	bInited = true;
 	return true;
-
-	#else
-		ofLogError("ofSerial")<< "not implemented in this platform";
-		return false;
 
 	#else
 		ofLogError("ofSerial")<< "not implemented in this platform";

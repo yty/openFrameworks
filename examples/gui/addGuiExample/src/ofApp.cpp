@@ -16,7 +16,7 @@ void ofApp::setup(){
 	sizeArray.push_back("640x480");
 	sizeArray.push_back("200x480");
 
-	ofxGuiSetFont("Microsoft YaHei",16);
+	ofxGuiSetFont("simhei",16);
 	ofxGuiSetDefaultWidth(300);
 	ofxGuiSetDefaultHeight(30);
 

@@ -113,8 +113,7 @@ public:
 	/// 	ofSerial mySerial;
 	/// 	mySerial.setup("COM4", 57600);
 	/// ~~~~
-	bool setup(string portName, int baudrate);
-	
+	bool setup(string portName, int baudrate, char parity = 'N',int dataBits = 8,int stopBits = 1);
 	/// \brief Opens the serial port based on the order in which is listed and
 	/// sets the baud rate.
 	///
@@ -123,8 +122,8 @@ public:
 	/// ofSerial mySerial;
 	/// mySerial.setup(0, 9600);
 	/// ~~~~
-	bool setup(int deviceNumber, int baudrate);
-	
+	bool setup(int deviceNumber, int baudrate, char parity = 'N',int dataBits = 8,int stopBits = 1);
+
 	bool isInitialized() const;
 	
 	/// \brief Closes the connection to the serial device.

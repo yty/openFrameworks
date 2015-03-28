@@ -85,7 +85,11 @@ bool ofxDropDownList::mouseReleased(ofMouseEventArgs & args){
 void ofxDropDownList::generateDraw(){
 	background.clear();
 	foreground.clear();
+
+#ifdef SONOVO_FONTSTASH
+#else
 	textMH.clear();
+#endif
 
 	for(int i=0;i<items.size();i++){
 		ofPath bg;
@@ -110,9 +114,12 @@ void ofxDropDownList::generateDraw(){
 		fg.rectangle(b.x,b.y+(i*defaultHeight),b.width,((b.height)/items.size()));
 		foreground.push_back(fg);
 
+#ifdef SONOVO_FONTSTASH
+#else
 		ofVboMesh textMesh;
 		textMesh = getTextMesh(getItemName(i), b.x+textPadding , b.y+(b.height /items.size())/2 + 4 + (i*defaultHeight));
 		textMH.push_back(textMesh);
+#endif
 	}
 }
 
