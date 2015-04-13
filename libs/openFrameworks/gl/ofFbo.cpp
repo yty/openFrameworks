@@ -361,6 +361,7 @@ void ofFbo::clear() {
 		releaseRB(colorBuffers[i]);
 	}
 	colorBuffers.clear();
+	activeDrawBuffers.clear();
 	bIsAllocated = false;
 }
 
