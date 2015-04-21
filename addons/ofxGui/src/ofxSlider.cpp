@@ -166,9 +166,11 @@ void ofxSlider<Type>::generateDraw(){
 
 template<typename Type>
 void ofxSlider<Type>::generateText(){
+
 	string valStr = ofToString(value);
 	textMesh = getTextMesh(getName(), b.x + textPadding, b.y + b.height / 2 + 4);
 	textMesh.append(getTextMesh(valStr, b.x + b.width - textPadding - getTextBoundingBox(valStr,0,0).width, b.y + b.height / 2 + 4));
+
 }
 
 template<>
@@ -191,15 +193,16 @@ void ofxSlider<Type>::render(){
 	}
 	ofSetColor(thisTextColor);
 
-	bindFontTexture();
+
 #ifdef SONOVO_FONTSTASH
 	string valStr = ofToString((float)value);
 	unicodeFont.draw(getName(),fontSize, b.x + textPadding, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12)));
 	unicodeFont.draw(valStr,fontSize, b.x + b.width - textPadding - getTextBoundingBox(valStr,0,0).width, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12)));
 #else
+	bindFontTexture();
 	textMesh.draw();
-#endif
 	unbindFontTexture();
+#endif
 
 	ofSetColor(c);
 	if(blendMode!=OF_BLENDMODE_ALPHA){

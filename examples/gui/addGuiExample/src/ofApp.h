@@ -35,9 +35,14 @@ class ofApp : public ofBaseApp{
 		ofxContent testContent0;
 		ofxQuadWarp testQuadWarp;
 		ofxToggle testToggle;
-
+		ofxToggle testChinaToggle;
 		ofxFontStash unicodeFont;
 
 		ofVideoGrabber camera;
+
+		ofxFloatSlider testFloatSlider;
+		
+		ofxToggle	doShader;
+		ofxFloatSlider aperture;
 
 };

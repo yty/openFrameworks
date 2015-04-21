@@ -34,8 +34,10 @@ void ofxLabel::generateDraw(){
     if(!getName().empty()){
     	name = getName() + ": ";
     }
-
+#ifdef SONOVO_FONTSTASH
     textMesh = getTextMesh(name + (string)label, b.x + textPadding, b.y + b.height / 2 + 4);
+#else
+#endif
 }
 
 void ofxLabel::render() {
@@ -49,7 +51,7 @@ void ofxLabel::render() {
 	}
     ofSetColor(textColor);
 
-    bindFontTexture();
+    
 #ifdef SONOVO_FONTSTASH
 	string name;
     if(!getName().empty()){
@@ -57,9 +59,11 @@ void ofxLabel::render() {
     }
 	unicodeFont.draw(name + (string)label,fontSize, b.x + textPadding, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12)));
 #else
+	bindFontTexture();
 	textMesh.draw();
+	unbindFontTexture();
 #endif
-    unbindFontTexture();
+    
 
     ofSetColor(c);
 	if(blendMode!=OF_BLENDMODE_ALPHA){

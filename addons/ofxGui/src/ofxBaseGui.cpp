@@ -59,11 +59,11 @@ int ofxBaseGui::fontSize = 12;
 
 ofTrueTypeFont ofxBaseGui::font;
 
-#ifdef SONOVO_FONTSTASH
-	ofxFontStash ofxBaseGui::unicodeFont;
-#else
-	ofBitmapFont ofxBaseGui::bitmapFont;
-#endif
+
+ofxFontStash ofxBaseGui::unicodeFont;
+
+ofBitmapFont ofxBaseGui::bitmapFont;
+
 
 bool ofxBaseGui::fontLoaded = false;
 bool ofxBaseGui::useTTF = false;
@@ -142,12 +142,7 @@ void ofxBaseGui::bindFontTexture(){
 	if(useTTF){
 		font.getFontTexture().bind();
 	}else{
-#ifdef SONOVO_FONTSTASH
-
-#else
 		bitmapFont.getTexture().bind();
-#endif
-
 	}
 }
 
@@ -155,12 +150,7 @@ void ofxBaseGui::unbindFontTexture(){
 	if(useTTF){
 		font.getFontTexture().unbind();
 	}else{
-#ifdef SONOVO_FONTSTASH
-
-#else
 		bitmapFont.getTexture().unbind();
-#endif
-		
 	}
 }
 
@@ -169,12 +159,7 @@ ofMesh ofxBaseGui::getTextMesh(const string & text, float x, float y){
 	if(useTTF){
 		return font.getStringMesh(text,x,y);
 	}else{
-#ifdef SONOVO_FONTSTASH
-
-#else
-		return bitmapFont.getMesh(text,x,y);
-#endif
-		
+		return bitmapFont.getMesh(text,x,y);		
 	}
 }
 
@@ -182,11 +167,7 @@ ofRectangle ofxBaseGui::getTextBoundingBox(const string & text,float x, float y)
 	if(useTTF){
 		return font.getStringBoundingBox(text,x,y);
 	}else{
-#ifdef SONOVO_FONTSTASH
-
-#else
 		return bitmapFont.getBoundingBox(text,x,y);
-#endif
 	}
 }
 

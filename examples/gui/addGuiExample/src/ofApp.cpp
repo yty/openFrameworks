@@ -21,27 +21,37 @@ void ofApp::setup(){
 	ofxGuiSetDefaultHeight(30);
 
 	gui.setUseTTF(true);
-	gui.setup("UI鐣岄潰");
+	gui.setup(ofLocaleToUtf8("UI界面"));
 	gui.add(testContent0.setup("testContent0",image0));
-	gui.add(testDropDownList.setup("娴嬭瘯DropDownList",sizeArray,0));
+	gui.add(testDropDownList.setup(ofLocaleToUtf8("测试DropDownList"),sizeArray,0));
 
 	vector<string> temp = ofSplitString(testDropDownList.getItemName(testDropDownList.getCurItemId()),"x");
 	camera.setup(ofToInt(temp[0]),ofToInt(temp[1]));
 
-	gui.add(testQuadWarp.setup("image娴嬭瘯QuadWarp",camera.getTextureReference()));
+	gui.add(testQuadWarp.setup(ofLocaleToUtf8("image测试QuadWarp"),camera.getTextureReference()));
 
-	testDropDownList.addListener(this,&ofApp::valueChange);//鎹簡浣嶇疆
+	testDropDownList.addListener(this,&ofApp::valueChange);//换了位置
 
+	
 	gui.loadFromFile("settings.xml");
 
-	guiEx.setUseTTF(true);
-	guiEx.setup("test","test.xml",512,10);
+	string fileName = ofLocaleToUtf8(ofToDataPath("test中文.xml",true));
+
+	//guiEx.setUseTTF(true);
+	guiEx.setup(ofLocaleToUtf8("test中文"),fileName,512,10);
+	guiEx.add(doShader.setup(ofLocaleToUtf8("使用shader"),false));
+	guiEx.add(aperture.setup(ofLocaleToUtf8("光圈"),180.0,0.0,180.0));
+
+	guiEx.add(testChinaToggle.setup(ofLocaleToUtf8("中文"),true));
 	testGroup.setup("testGroup");
 	testGroup1.setup("testGroup1");
-	testGroup1.add(testToggle.setup("testToggle",true));
+	testGroup1.add(testToggle.setup(ofLocaleToUtf8("test中文"),true));
+	testGroup1.add(testFloatSlider.setup(ofLocaleToUtf8("test滑条"),180,0,180));
 	testGroup.add(&testGroup1);
 	//testGroup.add(testContent1.setup("testContent1",image1));
 	guiEx.add(&testGroup);
+
+	guiEx.loadFromFile(fileName);
 
 }
 

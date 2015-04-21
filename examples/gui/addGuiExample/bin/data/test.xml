@@ -1,0 +1,9 @@
+<test>
+	<中文>1</中文>
+	<testGroup>
+		<testGroup1>
+			<test中文>1</test中文>
+			<test滑条>48</test滑条>
+		</testGroup1>
+	</testGroup>
+</test>

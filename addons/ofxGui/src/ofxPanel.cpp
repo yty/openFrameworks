@@ -75,8 +75,10 @@ void ofxPanel::generateDraw(){
 	loadBox.height = iconHeight;
 	saveBox.set(loadBox);
 	saveBox.x += iconWidth + iconSpacing;
-
+#ifdef SONOVO_FONTSTASH
+#else
 	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 + 4 + b.y);
+#endif
 }
 
 void ofxPanel::render(){
@@ -90,14 +92,14 @@ void ofxPanel::render(){
 	ofColor c = ofGetStyle().color;
 	ofSetColor(thisTextColor);
 
-	bindFontTexture();
 #ifdef SONOVO_FONTSTASH
 	unicodeFont.draw(getName(),fontSize+6, textPadding + b.x, b.y + header / 2 + fontSize/2 - (2 * (fontSize/12)));
 #else
+	bindFontTexture();
 	textMesh.draw();
-#endif
 	unbindFontTexture();
-
+#endif
+	
 	bool texHackEnabled = ofIsTextureEdgeHackEnabled();
 	ofDisableTextureEdgeHack();
 	loadIcon.draw(loadBox);

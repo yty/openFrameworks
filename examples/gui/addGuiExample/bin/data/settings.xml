@@ -1,4 +1,4 @@
-﻿<UI界面>
+<UI界面>
 	<测试DropDownList>
 		<dropDownList>
 			<item0>320x240</item0>
@@ -18,4 +18,8 @@
 		</image测试QuadWarp>
 	</image测试QuadWarp>
 <UI界面/>
+<test滑条>111.6</test滑条>
+	<testContent0>
+		<testContent0>0</testContent0>
+	</testContent0>
 </UI界面>

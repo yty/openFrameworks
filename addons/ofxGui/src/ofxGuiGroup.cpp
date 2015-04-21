@@ -253,13 +253,15 @@ void ofxGuiGroup::generateDraw(){
 	headerBg.setFillColor(thisHeaderBackgroundColor);
 	headerBg.setFilled(true);
 	headerBg.rectangle(b.x,b.y +1 + spacingNextElement, b.width, header);
-
+#ifdef SONOVO_FONTSTASH
+#else
 	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 + 4 + b.y+ spacingNextElement);
 	if(minimized){
 		textMesh.append(getTextMesh("+", b.width-textPadding-8 + b.x, header / 2 + 4+ b.y+ spacingNextElement));
 	}else{
 		textMesh.append(getTextMesh("-", b.width-textPadding-8 + b.x, header / 2 + 4 + b.y+ spacingNextElement));
 	}
+#endif
 }
 
 void ofxGuiGroup::render(){
@@ -273,7 +275,7 @@ void ofxGuiGroup::render(){
 	ofColor c = ofGetStyle().color;
 	ofSetColor(thisTextColor);
 
-	bindFontTexture();
+	
 #ifdef SONOVO_FONTSTASH
 	unicodeFont.draw(getName(),fontSize+4, textPadding + b.x, b.y + header / 2 + fontSize/2 - (2 * (fontSize/12))+spacingNextElement);
 	if(minimized){
@@ -282,10 +284,11 @@ void ofxGuiGroup::render(){
 		unicodeFont.draw("-",fontSize, b.width-textPadding-8 + b.x, header / 2 + 4 + b.y+ spacingNextElement);
 	}
 #else
+	bindFontTexture();
 	textMesh.draw();
-#endif
 	unbindFontTexture();
-    
+#endif
+	
 	if(!minimized){
 		for(int i = 0; i < (int)collection.size(); i++){
 			setWidthElements(b.width); //terry 忘了为什么加了

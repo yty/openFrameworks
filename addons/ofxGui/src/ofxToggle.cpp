@@ -90,8 +90,10 @@ void ofxToggle::generateDraw(){
 	cross.lineTo(b.getPosition()+checkboxRect.getBottomRight());
 	cross.moveTo(b.getPosition()+checkboxRect.getTopRight());
 	cross.lineTo(b.getPosition()+checkboxRect.getBottomLeft());
-
+#ifdef SONOVO_FONTSTASH
+#else
 	textMesh = getTextMesh(getName(), b.x+textPadding + checkboxRect.width, b.y+b.height / 2 + 4);
+#endif
 }
 
 void ofxToggle::render(){
@@ -109,14 +111,14 @@ void ofxToggle::render(){
 	}
 	ofSetColor(thisTextColor);
 
-	bindFontTexture();
 #ifdef SONOVO_FONTSTASH
 	unicodeFont.draw(getName(),fontSize, b.x+textPadding + checkboxRect.width, b.y + b.height / 2 + fontSize/2 - (2 * (fontSize/12))); 
 #else
+	bindFontTexture();
 	textMesh.draw();
-#endif
 	unbindFontTexture();
-
+#endif
+	
 	ofSetColor(c);
 	if(blendMode!=OF_BLENDMODE_ALPHA){
 		ofEnableBlendMode(blendMode);
