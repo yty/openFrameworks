@@ -59,9 +59,9 @@ int ofxBaseGui::fontSize = 12;
 
 ofTrueTypeFont ofxBaseGui::font;
 
-
-ofxFontStash ofxBaseGui::unicodeFont;
-
+#ifdef SONOVO_FONTSTASH
+	ofxFontStash ofxBaseGui::unicodeFont;
+#endif
 ofBitmapFont ofxBaseGui::bitmapFont;
 
 

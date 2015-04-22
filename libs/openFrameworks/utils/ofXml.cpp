@@ -78,6 +78,8 @@ void ofXml::serialize(const ofAbstractParameter & parameter){
 void ofXml::deserialize(ofAbstractParameter & parameter){
 	if(!parameter.isSerializable()) return;
 	string name = parameter.getEscapedName();
+	//cout<<ofLocaleToUtf8(parameter.getEscapedName())<<endl;
+	//cout<<ofUtf8ToLocale(parameter.getEscapedName())<<endl;
 	if(parameter.type()==typeid(ofParameterGroup).name()){
 		ofParameterGroup & group = static_cast<ofParameterGroup&>(parameter);
 		if(setTo(name)){
@@ -868,7 +870,7 @@ bool ofXml::setTo(const string& path)
 
              if(!element) {
                  element = prev;
-                 ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << remainingPath << "\"";
+                 ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << ofUtf8ToLocale(remainingPath) << "\"";
                  return false;
              }
         }
@@ -884,7 +886,7 @@ bool ofXml::setTo(const string& path)
         element = (Poco::XML::Element*) document->getNodeByPath(path);
         if(!element) {
             element = prev;
-            ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << path << "\"";
+            ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << ofUtf8ToLocale(path) << "\"";
             return false;
         }
         
@@ -894,7 +896,7 @@ bool ofXml::setTo(const string& path)
         element = (Poco::XML::Element*) element->getNodeByPath(path);
         if(!element) {
             element = prev;
-            ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << path << "\"";
+            ofLogWarning("ofXml") << "setCurrentElement(): passed invalid path \"" << ofUtf8ToLocale(path) << "\"";
             return false;
         }
     }

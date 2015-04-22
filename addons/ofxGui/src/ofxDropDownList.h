@@ -46,7 +46,6 @@ protected:
 	void generateDraw();
 	void valueChanged(bool & value);
 
-	ofVboMesh textMesh;
 	bool bGuiActive;
 
 	ofxGuiGroup dropDownList;

@@ -87,8 +87,9 @@ protected:
 	static ofTrueTypeFont font;
 	static bool fontLoaded;
 	static bool useTTF;
-
+#ifdef SONOVO_FONTSTASH
 	static ofxFontStash unicodeFont;
+#endif
 	static ofBitmapFont bitmapFont;
 
 	std::shared_ptr<ofBaseFileSerializer> serializer;
