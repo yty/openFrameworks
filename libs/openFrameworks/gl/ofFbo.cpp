@@ -9,6 +9,9 @@
 #ifdef TARGET_OPENGLES
 #include <dlfcn.h>
 #endif
+#ifdef TARGET_ANDROID
+#include "ofxAndroidUtils.h"
+#endif
 
 
 /*
@@ -363,6 +366,9 @@ void ofFbo::clear() {
 	colorBuffers.clear();
 	activeDrawBuffers.clear();
 	bIsAllocated = false;
+#ifdef TARGET_ANDROID
+	ofRemoveListener(ofxAndroidEvents().reloadGL,this,&ofFbo::reloadFbo);
+#endif
 }
 
 void ofFbo::destroy() {
@@ -579,6 +585,15 @@ void ofFbo::allocate(Settings _settings) {
 	if(settings != _settings) ofLogWarning("ofFbo") << "allocation not complete, passed settings not equal to created ones, this is an internal OF bug";
     
     */
+#ifdef TARGET_ANDROID
+	ofAddListener(ofxAndroidEvents().reloadGL,this,&ofFbo::reloadFbo);
+#endif
+}
+
+void ofFbo::reloadFbo(){
+	if(bIsAllocated){
+		allocate(settings);
+	}
 }
 
 bool ofFbo::isAllocated() const {
